@@ -1,6 +1,6 @@
 const express = require('express');
 const app = express();
-const path = require('path'); // path は必要です
+// const path = require('path'); // <-- 削除
 
 app.use(express.json());
 
@@ -67,15 +67,14 @@ app.delete('/posts/:id/donmai', (req, res) => {
 // --- ▲▲▲ ---
 
 // --- ▼▼▼ 変更箇所 ▼▼▼ ---
-// 1. 静的ファイル配信 (プロジェクトルートを指定)
-app.use(express.static(path.join(__dirname, '..')));
+// app.use(express.static(path.join(__dirname, '..'))); // <-- この行を削除
 // --- ▲▲▲ 変更箇所 ▲▲▲ ---
 
-// 2. Vercelはまずここを読み込む
+// Vercelはまずここを読み込む
 module.exports = app;
 
-// 3. 'node api/server.js' で直接実行された時だけサーバーを起動
-//    (Vercelデプロイ時はここは実行されない)
+// 'node api/server.js' で直接実行された時だけサーバーを起動
+// (Vercelデプロイ時はここは実行されない)
 if (require.main === module) {
   const port = 3000;
   app.listen(port, () => {
