@@ -11,10 +11,10 @@ app.get('/posts', (req, res) => {
   res.json([...posts].reverse());
 });
 
-// POST /posts (変更なし)
+// POST /posts (maxLength を 200 に変更)
 app.post('/posts', (req, res) => {
   const newPostText = req.body.text;
-  const maxLength = 280;
+  const maxLength = 200; // <<<--- 280 から 200 に変更
 
   if (!newPostText || typeof newPostText !== 'string' || newPostText.trim() === '') {
     return res.status(400).json({ error: '投稿内容が空です' });
