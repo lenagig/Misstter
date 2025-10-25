@@ -66,9 +66,17 @@ app.delete('/posts/:id/donmai', (req, res) => {
 });
 // --- ▲▲▲ ---
 
+// 1. 静的ファイル配信（ローカル実行時に必要）
 app.use(express.static(path.join(__dirname, '..')));
 
-const port = 3000;
-app.listen(port, () => {
-  console.log(`サーバーがポート ${port} で起動しました！ http://localhost:${port}`);
-});
+// 2. Vercelはまずここを読み込む
+module.exports = app;
+
+// 3. 'node back/server.js' で直接実行された時だけサーバーを起動
+//    (Vercelデプロイ時はここは実行されない)
+if (require.main === module) {
+  const port = 3000;
+  app.listen(port, () => {
+    console.log(`サーバーがポート ${port} で起動しました！ http://localhost:${port}`);
+  });
+}
