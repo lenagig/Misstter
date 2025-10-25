@@ -66,8 +66,16 @@ app.delete('/posts/:id/donmai', (req, res) => {
 });
 // --- ▲▲▲ ---
 
-// 1. 静的ファイル配信（ローカル実行時に必要）
-app.use(express.static(path.join(__dirname, '..')));
+// --- ▼▼▼ 変更箇所 ▼▼▼ ---
+// 1. 静的ファイル配信
+if (process.env.VERCEL_ENV) {
+  // Vercel環境: __dirname にファイルがコピーされる
+  app.use(express.static(__dirname)); 
+} else {
+  // ローカル環境: 親ディレクトリ (プロジェクトルート) を指定
+  app.use(express.static(path.join(__dirname, '..')));
+}
+// --- ▲▲▲ 変更箇所 ▲▲▲ ---
 
 // 2. Vercelはまずここを読み込む
 module.exports = app;
