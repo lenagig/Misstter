@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ミスッター</title>
+    <link rel="stylesheet" href="./front/css/home.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <header class="header">
+            <h1>ミスッター</h1>
+        </header>
+
+        <main class="main-content">
+            <div class="post-list">
+
+            </div>
+        </main>
+
+        <a href="#" class="fab">
+            <img src="./front/img/send.png" alt="投稿する">
+            </a>
+
+    </div>
+    
+    <a href="#" class="fab" id="open-modal-btn"> <img src="./front/img/send.png" alt="投稿する">
+        </a>
+
+    </div> <div class="modal-overlay" id="post-modal">
+        
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h2 class="modal-title">投稿</h2>
+                <button class="modal-close-button" id="modal-close-btn">&times;</button>
+            </div>
+            
+            <div class="modal-body">
+                <textarea class="modal-textarea" placeholder="ミスを共有しよう。大丈夫、ここは優しい場所だよ。"></textarea>
+                <div class="char-counter" id="char-count-display">0 / 200</div>
+            </div>
+            
+            <div class="modal-footer">
+                <button class="modal-submit-button">
+                    <img src="./front/img/send.png" alt="送信">
+                </button>
+            </div>
+
+        </div>
+    </div>
+    
+    <script src="./front/js/home.js"></script>
+    
+</body>
+</html>
