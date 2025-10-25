@@ -8,7 +8,7 @@
   ],
   "routes": [
     {
-      "src": "/posts(.*)",
+      "src": "/(.*)",
       "dest": "back/server.js"
     }
   ]
