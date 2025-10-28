@@ -1,10 +1,10 @@
 {
   "version": 2,
+  "regions": ["hnd1"],
   "builds": [
     {
       "src": "api/server.js",
-      "use": "@vercel/node",
-      "regions": ["hnd1"]
+      "use": "@vercel/node"
     },
     {
       "src": "front/**",
