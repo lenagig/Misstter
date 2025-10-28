@@ -1,8 +1,19 @@
 const express = require('express');
 const app = express();
-// const path = require('path'); // <-- 削除
+const path = require('path'); // <<<--- この行を追加
 
 app.use(express.json());
+
+// Vercelデプロイ時はここは使われず、vercel.jsonの設定が優先されます
+
+// '/front' へのリクエストが来たら、一つ上の階層の 'front' フォルダの中身を返す
+app.use('/front', express.static(path.join(__dirname, '..', 'front')));
+
+// ルート へのリクエストが来たら、一つ上の階層の 'index.html' を返す
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'index.html'));
+});
+
 
 let posts = [];
 
@@ -66,9 +77,7 @@ app.delete('/posts/:id/donmai', (req, res) => {
 });
 // --- ▲▲▲ ---
 
-// --- ▼▼▼ 変更箇所 ▼▼▼ ---
-// app.use(express.static(path.join(__dirname, '..'))); // <-- この行を削除
-// --- ▲▲▲ 変更箇所 ▲▲▲ ---
+// (削除) app.use(express.static(path.join(__dirname, '..')));
 
 // Vercelはまずここを読み込む
 module.exports = app;
