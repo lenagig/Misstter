@@ -1,31 +1,73 @@
 const express = require('express');
 const app = express();
-const path = require('path'); // <<<--- この行を追加
+const path = require('path');
 
+// .env.localファイルから環境変数を読み込む (apiフォルダの1つ上の階層にある)
+require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
+
+const { kv } = require('@vercel/kv'); 
+    
 app.use(express.json());
-
-// Vercelデプロイ時はここは使われず、vercel.jsonの設定が優先されます
-
-// '/front' へのリクエストが来たら、一つ上の階層の 'front' フォルダの中身を返す
+    
+// --- ローカル開発用の静的ファイル配信設定 (変更なし) ---
 app.use('/front', express.static(path.join(__dirname, '..', 'front')));
-
-// ルート へのリクエストが来たら、一つ上の階層の 'index.html' を返す
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'index.html'));
 });
 
+// --- API ---
 
-let posts = [];
+/**
+ * データの設計：(変更なし)
+ * 1. 投稿IDのリスト (List型)
+ * キー: "posts:ids"
+ * 値: ["id3", "id2", "id1"]
+ *
+ * 2. 各投稿の詳細 (Hash型)
+ * キー: "post:[id]" (例: "post:12345")
+ * 値: { id: "12345", text: "...", donmai: 0, timestamp: "..." }
+ */
 
-// GET /posts (変更なし)
-app.get('/posts', (req, res) => {
-  res.json([...posts].reverse());
+
+// --- ▼▼▼ ここを修正 ▼▼▼ ---
+// GET /posts (mget から pipeline/hgetall に変更)
+app.get('/posts', async (req, res) => {
+  try {
+    // 1. 最新の投稿IDを50件取得
+    const postIds = await kv.lrange('posts:ids', 0, 50);
+
+    if (postIds.length === 0) {
+      return res.json([]);
+    }
+
+    // 2. パイプラインを作成
+    const pipeline = kv.pipeline();
+
+    // 3. IDリストを使って、取得したいHashのキーをパイプラインに追加
+    postIds.forEach(id => {
+      pipeline.hgetall(`post:${id}`); // mget の代わりに hgetall を使う
+    });
+
+    // 4. パイプラインを実行 (複数のHashデータをまとめて取得)
+    const posts = await pipeline.exec();
+
+    // 5. フィルタリング (万が一nullが混じっていた場合)
+    res.json(posts.filter(Boolean));
+
+  } catch (error) {
+    console.error('投稿の取得に失敗しました:', error);
+    // エラー詳細をターミナルに出力
+    console.error(error); 
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
 });
+// --- ▲▲▲ 修正ここまで ▲▲▲ ---
 
-// POST /posts (maxLength を 200 に変更)
-app.post('/posts', (req, res) => {
+
+// POST /posts (変更なし)
+app.post('/posts', async (req, res) => {
   const newPostText = req.body.text;
-  const maxLength = 200; // <<<--- 280 から 200 に変更
+  const maxLength = 200;
 
   if (!newPostText || typeof newPostText !== 'string' || newPostText.trim() === '') {
     return res.status(400).json({ error: '投稿内容が空です' });
@@ -34,56 +76,79 @@ app.post('/posts', (req, res) => {
      return res.status(400).json({ error: `投稿は ${maxLength} 文字以内でお願いします` });
   }
 
+  const newPostId = Date.now().toString();
   const newPost = {
-    id: Date.now().toString(),
+    id: newPostId,
     text: newPostText.trim(),
     donmai: 0,
     timestamp: new Date().toISOString()
   };
-  posts.unshift(newPost);
-  console.log('新しい投稿:', newPost);
-  res.status(201).json(newPost);
+
+  try {
+    await kv.hset(`post:${newPostId}`, newPost);
+    await kv.lpush('posts:ids', newPostId);
+
+    console.log('新しい投稿 (KV):', newPost);
+    res.status(201).json(newPost);
+
+  } catch (error) {
+    console.error('投稿に失敗しました:', error);
+    console.error(error); // エラー詳細
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
+  }
 });
 
 // POST /posts/:id/donmai (変更なし)
-app.post('/posts/:id/donmai', (req, res) => {
+app.post('/posts/:id/donmai', async (req, res) => {
   const postId = req.params.id;
-  const postIndex = posts.findIndex(p => p.id === postId);
-  if (postIndex === -1) {
-    return res.status(404).json({ error: '投稿が見つかりません' });
+
+  try {
+    const exists = await kv.exists(`post:${postId}`);
+    if (!exists) {
+      return res.status(404).json({ error: '投稿が見つかりません' });
+    }
+    const newDonmaiCount = await kv.hincrby(`post:${postId}`, 'donmai', 1);
+
+    console.log(`投稿ID ${postId} のどんまいカウント (増): ${newDonmaiCount}`);
+    res.json({ donmai: newDonmaiCount });
+
+  } catch (error) {
+    console.error('どんまい処理に失敗しました:', error);
+    console.error(error); // エラー詳細
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
-  posts[postIndex].donmai++;
-  console.log(`投稿ID ${postId} のどんまいカウント (増): ${posts[postIndex].donmai}`);
-  res.json({ donmai: posts[postIndex].donmai });
 });
 
-// --- ▼▼▼ カウントを減らすAPIエンドポイントを追加 ▼▼▼ ---
-// DELETE /posts/:id/donmai : 特定の投稿のどんまいカウントを減らす
-app.delete('/posts/:id/donmai', (req, res) => {
+// DELETE /posts/:id/donmai (変更なし)
+app.delete('/posts/:id/donmai', async (req, res) => {
   const postId = req.params.id;
-  const postIndex = posts.findIndex(p => p.id === postId);
 
-  if (postIndex === -1) {
-    return res.status(404).json({ error: '投稿が見つかりません' });
+  try {
+    const donmaiCount = await kv.hget(`post:${postId}`, 'donmai');
+
+    if (donmaiCount === null) {
+      return res.status(404).json({ error: '投稿が見つかりません' });
+    }
+    let newDonmaiCount = Number(donmaiCount); 
+    if (newDonmaiCount > 0) {
+      newDonmaiCount = await kv.hincrby(`post:${postId}`, 'donmai', -1);
+    }
+
+    console.log(`投稿ID ${postId} のどんまいカウント (減): ${newDonmaiCount}`);
+    res.json({ donmai: newDonmaiCount });
+
+  } catch (error) {
+    console.error('どんまい解除処理に失敗しました:', error);
+    console.error(error); // エラー詳細
+    res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
-
-  // カウントが0より大きい場合のみ減らす
-  if (posts[postIndex].donmai > 0) {
-    posts[postIndex].donmai--;
-  }
-
-  console.log(`投稿ID ${postId} のどんまいカウント (減): ${posts[postIndex].donmai}`);
-  res.json({ donmai: posts[postIndex].donmai }); // 更新後のカウントを返す
 });
-// --- ▲▲▲ ---
 
-// (削除) app.use(express.static(path.join(__dirname, '..')));
 
 // Vercelはまずここを読み込む
 module.exports = app;
 
 // 'node api/server.js' で直接実行された時だけサーバーを起動
-// (Vercelデプロイ時はここは実行されない)
 if (require.main === module) {
   const port = 3000;
   app.listen(port, () => {
