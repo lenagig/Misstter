@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            postListElement.prepend(postElement);
+            postListElement.append(postElement);
         });
     }
 

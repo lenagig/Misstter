@@ -2,9 +2,6 @@ const express = require('express');
 const app = express();
 const path = require('path');
 
-// .env.localファイルから環境変数を読み込む (apiフォルダの1つ上の階層にある)
-require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
-
 const { kv } = require('@vercel/kv'); 
     
 app.use(express.json());
@@ -150,6 +147,9 @@ module.exports = app;
 
 // 'node api/server.js' で直接実行された時だけサーバーを起動
 if (require.main === module) {
+  // .env.localファイルから環境変数を読み込む
+  require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
+
   const port = 3000;
   app.listen(port, () => {
     console.log(`サーバーがポート ${port} で起動しました！ http://localhost:${port}`);
