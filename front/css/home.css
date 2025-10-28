@@ -25,18 +25,23 @@ body {
 /* ヘッダー */
 .header {
     background-color: var(--header-bg-color);
-    padding: 16px;
+    padding: 10px 16px; /* 上下のパディングを少し減らす */
     text-align: center;
     box-shadow: 0 2px 4px var(--shadow-color);
-    position: sticky; /* スクロールしてもヘッダーが追従するように */
+    position: sticky; 
     top: 0;
     z-index: 10;
+    /* ▼▼▼ ロゴを中央揃えにするため追加 ▼▼▼ */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* ▲▲▲ */
 }
 
-h1 {
-    margin: 0;
-    font-size: 24px;
-    font-weight: bold;
+/* --- ▼▼▼ ヘッダーロゴのスタイルを追加 ▼▼▼ --- */
+.header-logo {
+    height: 60px; /* ロゴの高さを指定 (幅は自動調整) */
+    /* 必要に応じて width も指定できます例: width: 150px; */
 }
 
 /* メインコンテンツエリア */
@@ -82,13 +87,13 @@ h1 {
 /* テキストコンテンツのコンテナ */
 .post__content {
     flex-grow: 1;
-    position: relative; /* <<<--- 削除ボタンを配置するために relative を追加 */
+    position: relative; /* 削除ボタンを配置するために relative を追加 */
 }
 
-/* --- ▼▼▼ 削除ボタンスタイルを追加 ▼▼▼ --- */
+/* 削除ボタンスタイルを追加 */
 .post__delete-button {
-    position: absolute; /* 親要素(.post__content)を基準に配置 */
-    top: -8px; /* 少し上にはみ出す */
+    position: absolute;
+    top: -8px;
     right: 0px; 
     font-size: 24px;
     font-weight: bold;
@@ -101,7 +106,7 @@ h1 {
     transition: color 0.2s ease;
 }
 .post__delete-button:hover {
-    color: #ff0000; /* ホバーで赤くする */
+    color: #ff0000;
 }
 
 /* テキスト本文 */
