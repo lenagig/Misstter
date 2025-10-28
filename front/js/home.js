@@ -74,18 +74,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const myPosts = getMyPosts(); // 自分の投稿リストを取得
 
         posts.forEach(post => {
-            // postがnullやundefinedの場合、処理をスキップ
-            if (!post) return;
-
+            if (!post) return; // postがnullの場合スキップ
             const postElement = document.createElement('article');
             postElement.classList.add('post');
             postElement.dataset.postId = post.id; 
+            const isMyPost = !!myPosts[post.id]; // この投稿が自分のものかチェック
 
-            // この投稿が自分のものかチェック
-            const isMyPost = !!myPosts[post.id];
-
-            // テンプレートリテラルを修正 (削除ボタンを追加)
-            // 投稿データから `post.text` や `post.donmai` を参照する
+            // 削除ボタン(&times;)をisMyPostの場合だけ追加
             postElement.innerHTML = `
                 <div class="post__emoji">
                     <img src="./front/img/sadicon.png" alt="悲しいアイコン">
@@ -169,7 +164,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // --- ▼▼▼ レスポンスからトークンを受け取り保存 ▼▼▼ ---
-                // サーバーは { post: {...}, deleteToken: "..." } という形式で返す
                 const result = await response.json(); 
                 if (result.post && result.post.id && result.deleteToken) {
                     addMyPost(result.post.id, result.deleteToken); // LocalStorageに保存
@@ -191,6 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         
         // どんまいボタン処理 (変更なし)
         if (event.target.matches('.reaction__icon[data-action="donmai"]')) {
+            // ... (省略) ...
             const iconElement = event.target;
             const postElement = iconElement.closest('.post');
             const postId = postElement.dataset.postId;
@@ -239,13 +234,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('この投稿の削除権限トークンが見つかりません。');
                 return;
             }
-
             if (!confirm('本当にこの投稿を削除しますか？\n（この操作は取り消せません）')) {
                 return;
             }
 
             try {
-                // 削除APIを呼び出し
                 const response = await fetch(`/posts/${postId}`, {
                     method: 'DELETE',
                     headers: {
@@ -258,11 +251,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
-
-                // 成功した場合
                 postElement.remove(); // 画面から投稿を削除
                 removeMyPost(postId); // LocalStorageからも削除
-                
             } catch (error) {
                 console.error('投稿の削除に失敗しました:', error);
                 alert(`投稿の削除に失敗しました。\n${error.message}`);
