@@ -82,7 +82,26 @@ h1 {
 /* テキストコンテンツのコンテナ */
 .post__content {
     flex-grow: 1;
-    /* 無理な位置調整 (position, top, margin-left) を削除 */
+    position: relative; /* <<<--- 削除ボタンを配置するために relative を追加 */
+}
+
+/* --- ▼▼▼ 削除ボタンスタイルを追加 ▼▼▼ --- */
+.post__delete-button {
+    position: absolute; /* 親要素(.post__content)を基準に配置 */
+    top: -8px; /* 少し上にはみ出す */
+    right: 0px; 
+    font-size: 24px;
+    font-weight: bold;
+    color: #aaa;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px;
+    line-height: 1;
+    transition: color 0.2s ease;
+}
+.post__delete-button:hover {
+    color: #ff0000; /* ホバーで赤くする */
 }
 
 /* テキスト本文 */
