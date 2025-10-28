@@ -88,25 +88,31 @@ body {
 .post__content {
     flex-grow: 1;
     position: relative; /* 削除ボタンを配置するために relative を追加 */
+    padding-right: 60px;
 }
 
-/* 削除ボタンスタイルを追加 */
 .post__delete-button {
-    position: absolute;
-    top: -8px;
+    position: absolute; /* 親要素(.post__content)を基準に配置 */
+    top: -3px;          /* 位置を微調整 */
     right: 0px; 
-    font-size: 24px;
-    font-weight: bold;
-    color: #aaa;
-    background: none;
-    border: none;
+    
+    /* デザイン変更 */
+    font-size: 15px;       /* 文字サイズ */
+    font-weight: bold;     /* 太字 */
+    color: #FF5252;        /* 文字色 (赤) */
+    background-color: #fff;/* 背景色 (白) */
+    border: 1.5px solid #FF5252; /* 枠線 (赤) */
+    border-radius: 20px;   /* 角を丸める */
+    padding: 3px 12px;     /* 内側の余白 (上下左右) */
+    
     cursor: pointer;
-    padding: 4px;
-    line-height: 1;
-    transition: color 0.2s ease;
+    line-height: 1.2;      /* 行の高さを調整 */
+    transition: background-color 0.2s ease, color 0.2s ease; /* ホバー効果用 */
+    z-index: 5; 
 }
 .post__delete-button:hover {
-    color: #ff0000;
+    background-color: #FF5252; /* ホバーで背景を赤に */
+    color: #fff;             /* ホバーで文字を白に */
 }
 
 /* テキスト本文 */

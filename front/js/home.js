@@ -86,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     <img src="./front/img/sadicon.png" alt="悲しいアイコン">
                 </div>
                 <div class="post__content">
-                    ${isMyPost ? '<button class="post__delete-button" data-action="delete" title="削除する">&times;</button>' : ''}
+                    ${isMyPost ? '<button class="post__delete-button" data-action="delete">削除</button>' : ''}
                     <p class="post__text">${escapeHTML(post.text || '')}</p> 
                     <div class="post__reaction">
                         <span class="reaction__icon" data-action="donmai" role="button" tabindex="0">🤝</span>
