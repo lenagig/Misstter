@@ -1,15 +1,15 @@
 const express = require('express');
 const app = express();
 const path = require('path');
-const crypto = require('crypto'); // <<<--- 削除機能のために追加
+const crypto = require('crypto');
 
 // --- ▼▼▼ 修正 ▼▼▼ ---
-// ローカル開発時のみ dotenv を読み込む (Vercelでは不要)
+// ローカル開発時のみ dotenv を読み込む
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
 }
 
-// KVのインポートは dotenv の *後* にする
+// KVのインポートは dotenv の *後* にする（ここで一度だけインポート）
 const { kv } = require('@vercel/kv'); 
 // --- ▲▲▲ ---
 
@@ -45,7 +45,7 @@ app.get('/posts', async (req, res) => {
 });
 
 
-// --- ▼▼▼ POST /posts を修正 (トークン生成) ▼▼▼ ---
+// (POST /posts は変更なし)
 app.post('/posts', async (req, res) => {
   const newPostText = req.body.text;
   const maxLength = 200;
@@ -58,37 +58,35 @@ app.post('/posts', async (req, res) => {
   }
 
   const newPostId = Date.now().toString();
-  const deleteToken = crypto.randomBytes(16).toString('hex'); // <<<--- 削除用トークンを生成
+  const deleteToken = crypto.randomBytes(16).toString('hex');
 
   const newPost = {
     id: newPostId,
     text: newPostText.trim(),
     donmai: 0,
     timestamp: new Date().toISOString(),
-    deleteToken: deleteToken // <<<--- トークンをデータに追加
+    deleteToken: deleteToken 
   };
 
   try {
     await kv.hset(`post:${newPostId}`, newPost);
     await kv.lpush('posts:ids', newPostId);
-
     console.log('新しい投稿 (KV):', newPost);
     
-    // クライアントにはトークンを含まない投稿情報と、削除用トークンを別々に返す
     const responsePost = { ...newPost };
     delete responsePost.deleteToken; 
     res.status(201).json({ post: responsePost, deleteToken: deleteToken });
 
   } catch (error) {
     console.error('投稿に失敗しました:', error);
-    console.error(error); // エラー詳細
+    console.error(error); 
     res.status(500).json({ error: 'サーバーエラーが発生しました' });
   }
 });
 
-// (POST /posts/:id/donmai は変更なし)
+// --- ▼▼▼ POST /posts/:id/donmai を修正 (if (!kv)削除) ▼▼▼ ---
 app.post('/posts/:id/donmai', async (req, res) => {
-  // ... (省略) ...
+  const postId = req.params.id; 
   try {
     const exists = await kv.exists(`post:${postId}`);
     if (!exists) {
@@ -104,9 +102,9 @@ app.post('/posts/:id/donmai', async (req, res) => {
   }
 });
 
-// (DELETE /posts/:id/donmai は変更なし)
+// --- ▼▼▼ DELETE /posts/:id/donmai を修正 (if (!kv)削除) ▼▼▼ ---
 app.delete('/posts/:id/donmai', async (req, res) => {
-  // ... (省略) ...
+  const postId = req.params.id;
   try {
     const donmaiCount = await kv.hget(`post:${postId}`, 'donmai');
     if (donmaiCount === null) {
@@ -126,10 +124,10 @@ app.delete('/posts/:id/donmai', async (req, res) => {
 });
 
 
-// --- ▼▼▼ DELETE /posts/:id を追加 (投稿削除) ▼▼▼ ---
+// (DELETE /posts/:id は変更なし)
 app.delete('/posts/:id', async (req, res) => {
     const postId = req.params.id;
-    const { token } = req.body; // リクエストボディからトークンを受け取る
+    const { token } = req.body; 
 
     if (!token) {
         return res.status(401).json({ error: '削除トークンがありません' });
@@ -159,10 +157,8 @@ app.delete('/posts/:id', async (req, res) => {
 // Vercelはまずここを読み込む
 module.exports = app;
 
-// --- ▼▼▼ 修正 ▼▼▼ ---
-// 'node api/server.js' で直接実行された時だけサーバーを起動
+// 'node api/server.js' で直接実行された時だけサーバーを起動 (変更なし)
 if (require.main === module) {
-  // (dotenvの読み込みは上で行ったので、ここでは不要)
   const port = 3000;
   app.listen(port, () => {
     console.log(`サーバーがポート ${port} で起動しました！ http://localhost:${port}`);
