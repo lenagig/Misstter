@@ -11,6 +11,7 @@
     <div class="container">
         
         <header class="header">
+            <button class="header-help-button" id="open-help-btn">？</button>
             <img src="./front/img/Misstter_logo.png" alt="Misstter Logo" class="header-logo">
         </header>
 
@@ -29,7 +30,9 @@
     <a href="#" class="fab" id="open-modal-btn"> <img src="./front/img/send.png" alt="投稿する">
         </a>
 
-    </div> <div class="modal-overlay" id="post-modal">
+    </div> 
+    
+    <div class="modal-overlay" id="post-modal">
         
         <div class="modal-content">
             
@@ -51,7 +54,27 @@
 
         </div>
     </div>
-    
+
+    <div class="modal-overlay" id="help-modal">
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h2 class="modal-title">ミスッターへようこそ</h2>
+            </div>
+            
+            <div class="modal-body help-modal-body">
+                <p>ここは日々の<span class="text-highlight">やらかし</span>や<span class="text-highlight">ミス</span>を安心してつぶやける場所です。</p>
+                <p>ここでは誰もあなたのことを責めません。みんなが「<span class="text-highlight">どんまい</span>」のリアクションであなたの気持ちを受け止めてくれます。</p>
+                <p>お互いのミスを共有し、共感しあって、前を向いて生きていくのが目的です。</p>
+                <p>怖がらなくて大丈夫。みんなで一緒にやらかそう。</p>
+            </div>
+            
+            <div class="modal-footer help-modal-footer">
+                <button class="help-modal-ok-button" id="help-modal-ok-btn">OK</button>
+            </div>
+
+        </div>
+    </div>
     <script src="./front/js/home.js"></script>
     
 </body>

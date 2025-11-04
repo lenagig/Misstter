@@ -1,7 +1,7 @@
 // DOMが読み込まれたら実行
 document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 必要な要素を取得 --- (変更なし)
+    // --- 必要な要素を取得 ---
     const postListElement = document.querySelector('.post-list'); 
     const openModalButton = document.getElementById('open-modal-btn');
     const modalOverlay = document.getElementById('post-modal');
@@ -11,6 +11,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const charCountDisplay = document.getElementById('char-count-display');
     const maxLength = 200;
 
+    // ヘルプモーダル用の要素
+    const openHelpButton = document.getElementById('open-help-btn');
+    const helpModalOverlay = document.getElementById('help-modal');
+    const closeHelpModalButton = document.getElementById('help-modal-close-btn');
+    const okHelpModalButton = document.getElementById('help-modal-ok-btn');
+
     // --- 削除機能用 LocalStorage --- (変更なし)
     const MY_POSTS_KEY = 'misstter_my_posts';
     function getMyPosts() { return JSON.parse(localStorage.getItem(MY_POSTS_KEY)) || {}; }
@@ -19,38 +25,29 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeMyPost(id) { const posts = getMyPosts(); delete posts[id]; saveMyPosts(posts); }
     function getMyToken(id) { return getMyPosts()[id] || null; }
 
-    // どんまい機能用 LocalStorage ヘルパーを追加
+    // どんまい機能用 LocalStorage ヘルパー (変更なし)
     const MY_DONMAI_KEY = 'misstter_my_donmais';
-
-    /** LocalStorage からどんまい済みの投稿IDリストを取得 */
     function getMyDonmais() {
-        // Set を使うと重複管理が楽
         const donmais = localStorage.getItem(MY_DONMAI_KEY);
         return donmais ? new Set(JSON.parse(donmais)) : new Set();
     }
-    /** LocalStorage にどんまい済みリストを保存 */
     function saveMyDonmais(donmaiSet) {
         localStorage.setItem(MY_DONMAI_KEY, JSON.stringify(Array.from(donmaiSet)));
     }
-    /** どんまいリストにIDを追加 */
     function addMyDonmai(id) {
         const donmais = getMyDonmais();
         donmais.add(id);
         saveMyDonmais(donmais);
     }
-    /** どんまいリストからIDを削除 */
     function removeMyDonmai(id) {
         const donmais = getMyDonmais();
         donmais.delete(id);
         saveMyDonmais(donmais);
     }
-    /** 指定したIDがどんまい済みかチェック */
     function isMyDonmai(id) {
         return getMyDonmais().has(id);
     }
-
-
-    // --- 関数定義 ---
+    // --- (関数定義は変更なし) ---
 
     // (fetchAndRenderPosts 関数は変更なし)
     async function fetchAndRenderPosts() {
@@ -68,8 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * 投稿データの配列を受け取ってHTMLを描画する関数
-     * @param {Array} posts - 投稿オブジェクトの配列
+     * 投稿データの配列を受け取ってHTMLを描画する関数 (変更なし)
      */
     function renderPosts(posts) {
         postListElement.innerHTML = '';
@@ -105,12 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                 </div>
             `;
-            // --- ▲▲▲ reaction__icon に isMyDonmai ? 'reacted' : '' を追加 ---
             postListElement.append(postElement); 
         });
     }
 
-    // (escapeHTML, updateCharCount, モーダル開閉イベント は変更なし)
     function escapeHTML(str) {
         const p = document.createElement('p');
         p.textContent = str;
@@ -127,6 +121,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // --- モーダル開閉イベント ---
+
+    // 投稿モーダル
     if (openModalButton) {
         openModalButton.addEventListener('click', (event) => {
             event.preventDefault();
@@ -141,12 +139,27 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.classList.remove('is-visible');
         });
     }
+
+    // ヘルプモーダルの開閉イベント
+    if (openHelpButton) {
+        openHelpButton.addEventListener('click', () => {
+            helpModalOverlay.classList.add('is-visible');
+        });
+    }
+    
+    if (okHelpModalButton) {
+        okHelpModalButton.addEventListener('click', () => {
+            helpModalOverlay.classList.remove('is-visible');
+        });
+    }
+
+    // modalTextarea の input イベント
     if (modalTextarea) {
         modalTextarea.addEventListener('input', updateCharCount);
     }
 
 
-    // (モーダルの送信ボタンの処理 は変更なし)
+    // モーダルの送信ボタンの処理
     if (modalSubmitButton) {
         modalSubmitButton.addEventListener('click', async () => {
             const postText = modalTextarea.value;
@@ -185,7 +198,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // どんまいボタンのLocalStorage操作)
+    //クリック処理
     postListElement.addEventListener('click', async (event) => {
         
         // どんまいボタン処理
@@ -195,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const postId = postElement.dataset.postId;
             const countElement = postElement.querySelector('.reaction__count');
             
-            // isReacted は LocalStorage から判断する (見た目ではなく)
             const isReacted = isMyDonmai(postId);
             const method = isReacted ? 'DELETE' : 'POST';
 
@@ -219,15 +231,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 const result = await response.json();
                 countElement.textContent = result.donmai;
                 
-                // LocalStorage と 見た目の操作
                 if (isReacted) {
-                    // どんまい解除
                     iconElement.classList.remove('reacted');
-                    removeMyDonmai(postId); // LocalStorage から削除
+                    removeMyDonmai(postId); 
                 } else {
-                    // どんまい追加
                     iconElement.classList.add('reacted');
-                    addMyDonmai(postId); // LocalStorage に追加
+                    addMyDonmai(postId); 
                 }
 
             } catch (error) {
@@ -236,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // (削除ボタン処理 は変更なし)
+        // 削除ボタン処理
         else if (event.target.matches('.post__delete-button[data-action="delete"]')) {
             const deleteButton = event.target;
             const postElement = deleteButton.closest('.post');

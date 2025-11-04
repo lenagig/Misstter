@@ -35,6 +35,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative; /* ← ヘルプボタン配置のために追加 */
 }
 
 /* ヘッダーロゴ */
@@ -322,4 +323,91 @@ body {
     font-size: 12px;
     color: var(--reaction-text-color); /* :root の変数を再利用 */
     margin-top: 4px; /* テキストエリアとの間に少し余白 */
+}
+
+
+/* ヘルプボタンとヘルプモーダルのスタイルを追加 */
+
+.header-help-button {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--fab-color);
+    background-color: #fff;
+    color: var(--fab-color);
+    font-size: 20px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.header-help-button:hover {
+    background-color: var(--fab-color);
+    color: #fff;
+}
+
+#help-modal .modal-content {
+    max-width: 700px; /* 投稿モーダルと同じ幅を指定 */
+}
+
+.help-modal-body {
+    height: 220px;       /* 投稿モーダルのテキストエリアと同じ高さを指定 */
+    overflow-y: auto;  /* 内容がはみ出た場合にスクロールさせる */
+}
+
+
+/* ヘルプモーダルの本文スタイル */
+#help-modal .modal-header {
+    justify-content: center; /* タイトルを中央揃えにする */
+}
+
+#help-modal .modal-title {
+    font-size: 25px;
+    margin: 10px 0 10px 0;
+}
+
+.help-modal-body p {
+    font-size: 18px;
+    line-height: 1.7;
+    margin: 0 0 16px 0;
+    color: var(--text-color); /* 文字色を明示 */
+}
+.help-modal-body p:last-child {
+    margin-bottom: 0;
+}
+
+.help-modal-body .text-highlight {
+    font-weight: bold;       /* 太字にする */
+    color: var(--fab-color); /* :root で定義済みの青色にする */
+}
+
+/* ヘルプモーダルのフッター (ボタン中央寄せ) */
+.help-modal-footer {
+    display: flex;
+    justify-content: center; /* ボタンを中央寄せ */
+    margin-top: 24px;
+}
+
+/* ヘルプモーダルのOKボタン */
+.help-modal-ok-button {
+    background-color: var(--fab-color);
+    color: #fff;
+    border: none;
+    border-radius: 30px;
+    padding: 10px 40px;
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+}
+
+.help-modal-ok-button:hover {
+    transform: scale(1.05);
+    background-color: #039BE5; /* 少し濃い青 */
 }
