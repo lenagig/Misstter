@@ -3,15 +3,13 @@ const app = express();
 const path = require('path');
 const crypto = require('crypto');
 
-// --- ▼▼▼ 修正 ▼▼▼ ---
 // ローカル開発時のみ dotenv を読み込む
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
 }
 
-// KVのインポートは dotenv の *後* にする（ここで一度だけインポート）
+// KVのインポートは dotenv の後にする（ここで一度だけインポート）
 const { kv } = require('@vercel/kv'); 
-// --- ▲▲▲ ---
 
     
 app.use(express.json());
@@ -84,7 +82,6 @@ app.post('/posts', async (req, res) => {
   }
 });
 
-// --- ▼▼▼ POST /posts/:id/donmai を修正 (if (!kv)削除) ▼▼▼ ---
 app.post('/posts/:id/donmai', async (req, res) => {
   const postId = req.params.id; 
   try {
@@ -102,7 +99,6 @@ app.post('/posts/:id/donmai', async (req, res) => {
   }
 });
 
-// --- ▼▼▼ DELETE /posts/:id/donmai を修正 (if (!kv)削除) ▼▼▼ ---
 app.delete('/posts/:id/donmai', async (req, res) => {
   const postId = req.params.id;
   try {
@@ -124,7 +120,6 @@ app.delete('/posts/:id/donmai', async (req, res) => {
 });
 
 
-// (DELETE /posts/:id は変更なし)
 app.delete('/posts/:id', async (req, res) => {
     const postId = req.params.id;
     const { token } = req.body; 

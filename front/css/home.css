@@ -31,17 +31,15 @@ body {
     position: sticky; 
     top: 0;
     z-index: 10;
-    /* ▼▼▼ ロゴを中央揃えにするため追加 ▼▼▼ */
+    /* ロゴを中央揃えにする */
     display: flex;
     justify-content: center;
     align-items: center;
-    /* ▲▲▲ */
 }
 
-/* --- ▼▼▼ ヘッダーロゴのスタイルを追加 ▼▼▼ --- */
+/* ヘッダーロゴ */
 .header-logo {
     height: 60px; /* ロゴの高さを指定 (幅は自動調整) */
-    /* 必要に応じて width も指定できます例: width: 150px; */
 }
 
 /* メインコンテンツエリア */
@@ -81,7 +79,7 @@ body {
     justify-content: center;
     /* position: relative; を削除 */
 }
-/* この1行を追加して、画像のサイズを調整します */
+/* 画像のサイズを調整します */
 .post__emoji img { width: 50px; height: 50px; }
 
 /* テキストコンテンツのコンテナ */
@@ -147,15 +145,12 @@ body {
     transition: background-color 0.2s ease, border-color 0.2s ease; /* 色が変わるアニメーション */
 }
 
-/* --- ▼▼▼ このスタイルを追加 ▼▼▼ --- */
 /* リアクションボタン押下時のスタイル */
 .reaction__icon.reacted {
     background-color: #d2f3ff; /* 例: 薄い黄色 */
     border-color: #43c7ff;  /* 例: 少し濃い黄色 */
 }
-/* --- ▲▲▲ --- */
 
-/* ▲▲▲ ここまでが変更箇所です ▲▲▲ */
 
 
 /* 投稿ボタン (Floating Action Button) */

@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const charCountDisplay = document.getElementById('char-count-display');
     const maxLength = 200;
 
-    // --- ▼▼▼ LocalStorage 操作ヘルパーを追加 ▼▼▼ ---
+    //LocalStorage 操作ヘルパーを追加
     const MY_POSTS_KEY = 'misstter_my_posts';
 
     /** LocalStorage から自分の投稿 {id: token} を取得 */
@@ -38,7 +38,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function getMyToken(id) {
         return getMyPosts()[id] || null;
     }
-    // --- ▲▲▲ ---
 
 
     // --- 関数定義 ---
@@ -70,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        // --- ▼▼▼ 削除ボタン表示のために修正 ▼▼▼ ---
         const myPosts = getMyPosts(); // 自分の投稿リストを取得
 
         posts.forEach(post => {
@@ -96,7 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
             `;
             postListElement.append(postElement); 
         });
-        // --- ▲▲▲ ---
     }
 
     // (escapeHTML, updateCharCount, モーダル開閉イベント は変更なし)
@@ -135,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // ▼▼▼ モーダルの送信ボタンの処理を修正 (トークン保存) ▼▼▼
+    // モーダルの送信ボタンの処理を修正 (トークン保存)
     if (modalSubmitButton) {
         modalSubmitButton.addEventListener('click', async () => {
             const postText = modalTextarea.value;
@@ -163,12 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
 
-                // --- ▼▼▼ レスポンスからトークンを受け取り保存 ▼▼▼ ---
+                // レスポンスからトークンを受け取り保存
                 const result = await response.json(); 
                 if (result.post && result.post.id && result.deleteToken) {
                     addMyPost(result.post.id, result.deleteToken); // LocalStorageに保存
                 }
-                // --- ▲▲▲ ---
 
                 modalOverlay.classList.remove('is-visible'); 
                 fetchAndRenderPosts(); // 投稿リストを再読み込み
@@ -180,12 +176,11 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // --- ▼▼▼ クリック処理を修正 (削除ボタン対応) ▼▼▼ ---
+    // クリック処理を修正 (削除ボタン対応)
     postListElement.addEventListener('click', async (event) => {
         
         // どんまいボタン処理 (変更なし)
         if (event.target.matches('.reaction__icon[data-action="donmai"]')) {
-            // ... (省略) ...
             const iconElement = event.target;
             const postElement = iconElement.closest('.post');
             const postId = postElement.dataset.postId;
@@ -223,7 +218,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        // --- ▼▼▼ 削除ボタン処理を追加 ▼▼▼ ---
+        // 削除ボタン処理を追加 
         else if (event.target.matches('.post__delete-button[data-action="delete"]')) {
             const deleteButton = event.target;
             const postElement = deleteButton.closest('.post');
@@ -258,7 +253,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`投稿の削除に失敗しました。\n${error.message}`);
             }
         }
-        // --- ▲▲▲ ---
     });
 
     // --- 初期表示 ---
