@@ -1,0 +1,70 @@
+/* responsive.css に貼り付けるコード */
+
+/* 画面幅が 768px 以下のデバイス（一般的なタブレットやスマホ）に適用 */
+@media (max-width: 768px) {
+
+    /* --- ヘッダー --- */
+    .header-logo {
+        height: 50px; /* ロゴを少し小さくして圧迫感を減らす */
+    }
+
+    /* --- メインコンテンツ（最重要） --- */
+    .main-content {
+        /* 左右の余白を 20% から 5% に変更 */
+        padding: 24px 5%; 
+    }
+
+    /* --- 投稿カード --- */
+    .post {
+        padding: 16px; /* カード内の余白を少し詰める */
+        gap: 12px;     /* アイコンとテキストの隙間を少し詰める */
+    }
+
+    /* 投稿アイコン */
+    .post__emoji {
+        width: 50px;   /* アイコンサイズを小さく */
+        height: 50px;
+    }
+    .post__emoji img {
+        width: 35px; /* アイコン内の画像を小さく */
+        height: 35px;
+    }
+
+    /* 投稿テキスト */
+    .post__text {
+        font-size: 16px; /* 文字サイズを少し小さく読みやすく */
+    }
+    
+    /* 削除ボタンの領域調整 */
+    .post__content {
+        padding-right: 50px; 
+    }
+    .post__delete-button {
+        /* 位置を微調整 */
+        right: -5px; 
+        top: -5px;
+    }
+
+    /* --- 投稿ボタン (FAB) --- */
+    .fab {
+        width: 60px;  /* ボタンを少し小さく */
+        height: 60px;
+        bottom: 20px; /* 位置も微調整 */
+        right: 20px;
+    }
+    .fab img {
+        width: 24px; /* ボタン内のアイコンサイズ調整 */
+        height: 24px;
+        left: 1px;
+    }
+
+    /* --- モーダルウィンドウ --- */
+    .modal-content {
+        width: 95%; /* スマホでは画面幅いっぱいまで使う */
+        padding: 20px;
+    }
+    .modal-textarea {
+        height: 200px; /* テキストエリアの高さを少し低く */
+    }
+
+}
