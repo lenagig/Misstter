@@ -11,32 +11,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const charCountDisplay = document.getElementById('char-count-display');
     const maxLength = 200;
 
-    //LocalStorage 操作ヘルパーを追加
+    // --- 削除機能用 LocalStorage --- (変更なし)
     const MY_POSTS_KEY = 'misstter_my_posts';
+    function getMyPosts() { return JSON.parse(localStorage.getItem(MY_POSTS_KEY)) || {}; }
+    function saveMyPosts(posts) { localStorage.setItem(MY_POSTS_KEY, JSON.stringify(posts)); }
+    function addMyPost(id, token) { const posts = getMyPosts(); posts[id] = token; saveMyPosts(posts); }
+    function removeMyPost(id) { const posts = getMyPosts(); delete posts[id]; saveMyPosts(posts); }
+    function getMyToken(id) { return getMyPosts()[id] || null; }
 
-    /** LocalStorage から自分の投稿 {id: token} を取得 */
-    function getMyPosts() {
-        return JSON.parse(localStorage.getItem(MY_POSTS_KEY)) || {};
+    // どんまい機能用 LocalStorage ヘルパーを追加
+    const MY_DONMAI_KEY = 'misstter_my_donmais';
+
+    /** LocalStorage からどんまい済みの投稿IDリストを取得 */
+    function getMyDonmais() {
+        // Set を使うと重複管理が楽
+        const donmais = localStorage.getItem(MY_DONMAI_KEY);
+        return donmais ? new Set(JSON.parse(donmais)) : new Set();
     }
-    /** LocalStorage に自分の投稿 {id: token} を保存 */
-    function saveMyPosts(posts) {
-        localStorage.setItem(MY_POSTS_KEY, JSON.stringify(posts));
+    /** LocalStorage にどんまい済みリストを保存 */
+    function saveMyDonmais(donmaiSet) {
+        localStorage.setItem(MY_DONMAI_KEY, JSON.stringify(Array.from(donmaiSet)));
     }
-    /** 自分の投稿リストに {id: token} を追加 */
-    function addMyPost(id, token) {
-        const posts = getMyPosts();
-        posts[id] = token;
-        saveMyPosts(posts);
+    /** どんまいリストにIDを追加 */
+    function addMyDonmai(id) {
+        const donmais = getMyDonmais();
+        donmais.add(id);
+        saveMyDonmais(donmais);
     }
-    /** 自分の投稿リストから id を削除 */
-    function removeMyPost(id) {
-        const posts = getMyPosts();
-        delete posts[id];
-        saveMyPosts(posts);
+    /** どんまいリストからIDを削除 */
+    function removeMyDonmai(id) {
+        const donmais = getMyDonmais();
+        donmais.delete(id);
+        saveMyDonmais(donmais);
     }
-    /** 指定したIDのトークンを取得 */
-    function getMyToken(id) {
-        return getMyPosts()[id] || null;
+    /** 指定したIDがどんまい済みかチェック */
+    function isMyDonmai(id) {
+        return getMyDonmais().has(id);
     }
 
 
@@ -45,12 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
     // (fetchAndRenderPosts 関数は変更なし)
     async function fetchAndRenderPosts() {
         try {
-            const response = await fetch('/posts'); // GET /posts を呼び出し
+            const response = await fetch('/posts'); 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
-            const posts = await response.json(); // JSONデータを取得
-            renderPosts(posts); // 取得したデータで表示を更新
+            const posts = await response.json(); 
+            renderPosts(posts); 
         } catch (error) {
             console.error('投稿の取得に失敗しました:', error);
             postListElement.innerHTML = '<p style="color: red; text-align: center;">投稿の読み込みに失敗しました。</p>';
@@ -69,29 +79,33 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
-        const myPosts = getMyPosts(); // 自分の投稿リストを取得
+        const myPosts = getMyPosts(); // 削除ボタン用
+        const myDonmais = getMyDonmais(); // <<<--- どんまいボタン用 (リロード対策)
 
         posts.forEach(post => {
-            if (!post) return; // postがnullの場合スキップ
+            if (!post) return; 
             const postElement = document.createElement('article');
             postElement.classList.add('post');
             postElement.dataset.postId = post.id; 
-            const isMyPost = !!myPosts[post.id]; // この投稿が自分のものかチェック
+            const isMyPost = !!myPosts[post.id]; 
+            
+            // LocalStorage の情報を使ってどんまい済みか判断
+            const isMyDonmai = myDonmais.has(String(post.id)); 
 
-            // 削除ボタン(&times;)をisMyPostの場合だけ追加
             postElement.innerHTML = `
                 <div class="post__emoji">
                     <img src="./front/img/sadicon.png" alt="悲しいアイコン">
                 </div>
                 <div class="post__content">
-                    ${isMyPost ? '<button class="post__delete-button" data-action="delete">削除</button>' : ''}
+                    ${isMyPost ? `<button class="post__delete-button" data-action="delete">削除</button>` : ''}
                     <p class="post__text">${escapeHTML(post.text || '')}</p> 
                     <div class="post__reaction">
-                        <span class="reaction__icon" data-action="donmai" role="button" tabindex="0">🤝</span>
+                        <span class="reaction__icon ${isMyDonmai ? 'reacted' : ''}" data-action="donmai" role="button" tabindex="0">🤝</span>
                         <span class="reaction__count">${post.donmai || 0}</span>
                     </div>
                 </div>
             `;
+            // --- ▲▲▲ reaction__icon に isMyDonmai ? 'reacted' : '' を追加 ---
             postListElement.append(postElement); 
         });
     }
@@ -100,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function escapeHTML(str) {
         const p = document.createElement('p');
         p.textContent = str;
-        return p.innerHTML.replace(/\n/g, '<br>'); // 改行を<br>に変換
+        return p.innerHTML.replace(/\n/g, '<br>');
     }
     function updateCharCount() {
         if (charCountDisplay) {
@@ -132,7 +146,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // モーダルの送信ボタンの処理を修正 (トークン保存)
+    // (モーダルの送信ボタンの処理 は変更なし)
     if (modalSubmitButton) {
         modalSubmitButton.addEventListener('click', async () => {
             const postText = modalTextarea.value;
@@ -149,9 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             try {
                 const response = await fetch('/posts', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json', },
                     body: JSON.stringify({ text: postText }),
                 });
 
@@ -159,15 +171,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
-
-                // レスポンスからトークンを受け取り保存
                 const result = await response.json(); 
                 if (result.post && result.post.id && result.deleteToken) {
-                    addMyPost(result.post.id, result.deleteToken); // LocalStorageに保存
+                    addMyPost(result.post.id, result.deleteToken); 
                 }
-
                 modalOverlay.classList.remove('is-visible'); 
-                fetchAndRenderPosts(); // 投稿リストを再読み込み
+                fetchAndRenderPosts(); 
 
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
@@ -176,16 +185,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // クリック処理を修正 (削除ボタン対応)
+    // どんまいボタンのLocalStorage操作)
     postListElement.addEventListener('click', async (event) => {
         
-        // どんまいボタン処理 (変更なし)
+        // どんまいボタン処理
         if (event.target.matches('.reaction__icon[data-action="donmai"]')) {
             const iconElement = event.target;
             const postElement = iconElement.closest('.post');
             const postId = postElement.dataset.postId;
             const countElement = postElement.querySelector('.reaction__count');
-            const isReacted = iconElement.classList.contains('reacted');
+            
+            // isReacted は LocalStorage から判断する (見た目ではなく)
+            const isReacted = isMyDonmai(postId);
             const method = isReacted ? 'DELETE' : 'POST';
 
             try {
@@ -207,23 +218,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 const result = await response.json();
                 countElement.textContent = result.donmai;
+                
+                // LocalStorage と 見た目の操作
                 if (isReacted) {
+                    // どんまい解除
                     iconElement.classList.remove('reacted');
+                    removeMyDonmai(postId); // LocalStorage から削除
                 } else {
+                    // どんまい追加
                     iconElement.classList.add('reacted');
+                    addMyDonmai(postId); // LocalStorage に追加
                 }
+
             } catch (error) {
                 console.error('どんまい処理に失敗しました:', error);
                 alert(`どんまいできませんでした。\n理由: ${error.message}`);
             }
         }
 
-        // 削除ボタン処理を追加 
+        // (削除ボタン処理 は変更なし)
         else if (event.target.matches('.post__delete-button[data-action="delete"]')) {
             const deleteButton = event.target;
             const postElement = deleteButton.closest('.post');
             const postId = postElement.dataset.postId;
-            const token = getMyToken(postId); // LocalStorageからトークン取得
+            const token = getMyToken(postId); 
 
             if (!token) {
                 alert('この投稿の削除権限トークンが見つかりません。');
@@ -239,15 +257,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ token: token }), // トークンをbodyで送る
+                    body: JSON.stringify({ token: token }), 
                 });
 
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
                 }
-                postElement.remove(); // 画面から投稿を削除
-                removeMyPost(postId); // LocalStorageからも削除
+                postElement.remove(); 
+                removeMyPost(postId); 
             } catch (error) {
                 console.error('投稿の削除に失敗しました:', error);
                 alert(`投稿の削除に失敗しました。\n${error.message}`);
