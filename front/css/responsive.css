@@ -37,7 +37,7 @@
     
     /* 削除ボタンの領域調整 */
     .post__content {
-        padding-right: 50px; 
+        padding-right: 1px; 
     }
     .post__delete-button {
         /* 位置を微調整 */

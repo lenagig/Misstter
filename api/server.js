@@ -22,6 +22,34 @@ const pool = new Pool({
   },
 });
 
+
+// --- ★★★ 新しい機能 (ここから) ★★★ ---
+
+/**
+ * 古い投稿（7日以上前）を削除する関数
+ */
+async function cleanupOldPosts() {
+  console.log('古い投稿のクリーンアップを開始します...');
+  try {
+    // (NOW() - INTERVAL '7 days') よりも古いタイムスタンプを持つ投稿を削除
+    const result = await pool.query(
+      "DELETE FROM posts WHERE timestamp < (NOW() - INTERVAL '7 days')"
+    );
+    
+    if (result.rowCount > 0) {
+      console.log(`✅ ${result.rowCount} 件の古い投稿を削除しました。`);
+    } else {
+      console.log('削除対象の古い投稿はありませんでした。');
+    }
+  } catch (error) {
+    // クリーンアップ処理が失敗しても、メインのAPI動作は止めない
+    console.error('❌ 古い投稿の削除中にエラーが発生しました:', error);
+  }
+}
+
+// --- ★★★ 新しい機能 (ここまで) ★★★ ---
+
+
 // --- ↑↑↑ ここまでが変更点 ↑↑↑ ---
 
 app.use(express.json());
@@ -36,6 +64,10 @@ app.get('/', (req, res) => {
 
 // (GET /posts API: PostgreSQL から取得するように変更)
 app.get('/posts', async (req, res) => {
+  
+  // ★★★ 追加: 投稿取得の前に古い投稿を削除する
+  await cleanupOldPosts();
+  
   try {
     // SQL クエリを実行
     const result = await pool.query(
@@ -50,6 +82,10 @@ app.get('/posts', async (req, res) => {
 
 // (POST /posts API: PostgreSQL に挿入するように変更)
 app.post('/posts', async (req, res) => {
+  
+  // ★★★ 追加: 新規投稿の前に古い投稿を削除する
+  await cleanupOldPosts();
+
   const newPostText = req.body.text;
   const maxLength = 200;
 

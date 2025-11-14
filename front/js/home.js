@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * 投稿データの配列を受け取ってHTMLを描画する関数 (変更なし)
+     * 投稿データの配列を受け取ってHTMLを描画する関数 (★★★ 変更あり ★★★)
      */
     function renderPosts(posts) {
         postListElement.innerHTML = '';
@@ -95,11 +95,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="post__content">
                     ${isMyPost ? `<button class="post__delete-button" data-action="delete">削除</button>` : ''}
                     <p class="post__text">${escapeHTML(post.text || '')}</p> 
-                    <div class="post__reaction">
-                        <span class="reaction__icon ${isMyDonmai ? 'reacted' : ''}" data-action="donmai" role="button" tabindex="0">🤝</span>
-                        <span class="reaction__count">${post.donmai || 0}</span>
+                    
+                    <div class="post__meta">
+                        <div class="post__reaction">
+                            <span class="reaction__icon ${isMyDonmai ? 'reacted' : ''}" data-action="donmai" role="button" tabindex="0">🤝</span>
+                            <span class="reaction__count">${post.donmai || 0}</span>
+                        </div>
+                        <div class="post__timestamp">
+                            ${timeAgo(post.timestamp)}
+                        </div>
                     </div>
-                </div>
+                    </div>
             `;
             postListElement.append(postElement); 
         });
@@ -110,6 +116,39 @@ document.addEventListener('DOMContentLoaded', () => {
         p.textContent = str;
         return p.innerHTML.replace(/\n/g, '<br>');
     }
+
+    // ★★★ ここからが追加点 ★★★
+    /**
+     * ISO 8601 形式の日時文字列から経過時間を計算する関数
+     * @param {string} isoString - ISO 8601 形式の日時文字列
+     * @returns {string} - "〇分前", "〇時間前", "〇日前" などの文字列
+     */
+    function timeAgo(isoString) {
+        if (!isoString) return '';
+        
+        const now = new Date();
+        const past = new Date(isoString);
+        const diffMs = now - past;
+        
+        // 差分（ミリ秒）
+        const diffSeconds = Math.round(diffMs / 1000);
+        const diffMinutes = Math.round(diffSeconds / 60);
+        const diffHours = Math.round(diffMinutes / 60);
+        const diffDays = Math.round(diffHours / 24);
+
+        if (diffMinutes < 1) {
+            return `1分未満前`; // 1分以内
+        } else if (diffMinutes < 60) {
+            return `${diffMinutes}分前`; // 1時間以内
+        } else if (diffHours < 24) {
+            return `${diffHours}時間前`; // 1日以内
+        } else {
+            return `${diffDays}日前`; // それ以上
+        }
+    }
+    // ★★★ ここまでが追加点 ★★★
+
+
     function updateCharCount() {
         if (charCountDisplay) {
             const currentLength = modalTextarea.value.length;

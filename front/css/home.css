@@ -87,7 +87,7 @@ body {
 .post__content {
     flex-grow: 1;
     position: relative; /* 削除ボタンを配置するために relative を追加 */
-    padding-right: 60px;
+    padding-right: 4px;
 }
 
 .post__delete-button {
@@ -123,6 +123,7 @@ body {
     word-break: break-word;
 }
 
+/* ★★★ ここからが変更点 (margin-top を削除) ★★★ */
 /* リアクションエリア */
 .post__reaction {
     display: flex;
@@ -130,9 +131,10 @@ body {
     gap: 8px;
     font-size: 14px;
     color: var(--reaction-text-color);
-    margin-top: 16px; /* テキストとの余白を調整 */
+    /* margin-top: 16px; (削除) → .post__meta に移動 */
     /* margin-left を削除 */
 }
+/* ★★★ ここまでが変更点 ★★★ */
 
 /* リアクションアイコン */
 .reaction__icon {
@@ -152,6 +154,23 @@ body {
     border-color: #43c7ff;  /* 例: 少し濃い黄色 */
 }
 
+/* ★★★ ここからが追加点 ★★★ */
+/* リアクションとタイムスタンプを横並びにするためのラッパー */
+.post__meta {
+    display: flex;
+    justify-content: space-between; /* 両端に寄せる */
+    align-items: center;          /* 縦方向中央揃え */
+    margin-top: 16px;             /* テキストとの余白 (リアクションから移動) */
+}
+
+/* タイムスタンプのスタイル */
+.post__timestamp {
+    font-size: 14px;
+    color: var(--reaction-text-color); /* リアクション数と同じ色を使う */
+    flex-shrink: 0; /* 縮まないようにする */
+    padding-left: 10px; /* リアクションと近すぎる場合の間隔 */
+}
+/* ★★★ ここまでが追加点 ★★★ */
 
 
 /* 投稿ボタン (Floating Action Button) */
