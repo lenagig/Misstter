@@ -375,7 +375,7 @@ body {
 }
 
 .help-modal-body {
-    height: 220px;       /* 投稿モーダルのテキストエリアと同じ高さを指定 */
+    height: 260px;       /* 投稿モーダルのテキストエリアと同じ高さを指定 */
     overflow-y: auto;  /* 内容がはみ出た場合にスクロールさせる */
 }
 
@@ -403,6 +403,14 @@ body {
 .help-modal-body .text-highlight {
     font-weight: bold;       /* 太字にする */
     color: var(--fab-color); /* :root で定義済みの青色にする */
+}
+
+/*注意書き*/
+.help-modal-body p.help-modal-note {
+    font-size: 15px; /* 通常(18px)より小さく */
+    font-weight: bold;
+    color: var(--fab-color);
+    margin-top: 30px;
 }
 
 /* ヘルプモーダルのフッター (ボタン中央寄せ) */

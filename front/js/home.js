@@ -137,7 +137,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const diffDays = Math.round(diffHours / 24);
 
         if (diffMinutes < 1) {
-            return `1分未満前`; // 1分以内
+            return `${diffSeconds}秒前`; // 1分以内
         } else if (diffMinutes < 60) {
             return `${diffMinutes}分前`; // 1時間以内
         } else if (diffHours < 24) {
