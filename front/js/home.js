@@ -162,6 +162,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openModalButton) {
         openModalButton.addEventListener('click', (event) => {
             event.preventDefault();
+            
+            // モーダルを開くときにボタンを「押せる状態」にリセットする
+            modalSubmitButton.disabled = false; 
+            
             modalOverlay.classList.add('is-visible');
             modalTextarea.value = '';
             updateCharCount();
@@ -193,16 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // --- モーダルの送信ボタンの処理 (連打防止機能あり) ---
+    // --- モーダルの送信ボタンの処理 ---
     if (modalSubmitButton) {
         modalSubmitButton.addEventListener('click', async () => {
             
-            // もし既にボタンが無効化されていたら処理を中断（二重送信防止の念押し）
+            // もし既にボタンが無効化されていたら処理を中断
             if (modalSubmitButton.disabled) return;
 
             const postText = modalTextarea.value;
 
-            // バリデーション（入力チェック）
             if (!postText || postText.trim() === '') {
                 alert('何か入力してね！');
                 return;
@@ -212,13 +215,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
-            // ボタンを一時的に無効化（連打防止）
+            // ボタンを無効化（処理開始）
             modalSubmitButton.disabled = true;
-
-            // 3秒後にボタンを再度有効化するタイマーを設定
-            setTimeout(() => {
-                modalSubmitButton.disabled = false;
-            }, 3000); // 3000ミリ秒 = 3秒
 
             try {
                 const response = await fetch('/posts', {
@@ -237,13 +235,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 modalOverlay.classList.remove('is-visible'); 
                 fetchAndRenderPosts(); 
+                
+                // 成功時はボタンを復活させない（モーダルが閉じるので）
 
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
                 alert(`投稿できなかったよ。\n${error.message}`);
-                // エラー時でも3秒経てばボタンは復活しますが、
-                // 即座に再試行させたい場合はここで disabled = false にすることも可能です。
-                // 今回は「一度押したら3秒反応しない」という仕様を優先してそのままにします。
+                
+                // エラー時のみ、ボタンを復活させる（再入力できるように）
+                modalSubmitButton.disabled = false;
             }
         });
     }
@@ -256,13 +256,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const iconElement = event.target;
             
             // 連打防止
-            // すでに処理中フラグが立っていたら何もしない
             if (iconElement.dataset.processing) return;
 
-            // 処理中フラグを立てる
             iconElement.dataset.processing = "true";
             
-            // 1秒(1000ミリ秒)後にフラグを削除して再度押せるようにする
             setTimeout(() => {
                 delete iconElement.dataset.processing;
             }, 500);
