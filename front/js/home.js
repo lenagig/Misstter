@@ -17,7 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHelpModalButton = document.getElementById('help-modal-close-btn');
     const okHelpModalButton = document.getElementById('help-modal-ok-btn');
 
-    // --- 削除機能用 LocalStorage --- (変更なし)
+    // --- 削除機能用 LocalStorage ---
     const MY_POSTS_KEY = 'misstter_my_posts';
     function getMyPosts() { return JSON.parse(localStorage.getItem(MY_POSTS_KEY)) || {}; }
     function saveMyPosts(posts) { localStorage.setItem(MY_POSTS_KEY, JSON.stringify(posts)); }
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function removeMyPost(id) { const posts = getMyPosts(); delete posts[id]; saveMyPosts(posts); }
     function getMyToken(id) { return getMyPosts()[id] || null; }
 
-    // どんまい機能用 LocalStorage ヘルパー (変更なし)
+    // どんまい機能用 LocalStorage ヘルパー
     const MY_DONMAI_KEY = 'misstter_my_donmais';
     function getMyDonmais() {
         const donmais = localStorage.getItem(MY_DONMAI_KEY);
@@ -47,9 +47,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function isMyDonmai(id) {
         return getMyDonmais().has(id);
     }
-    // --- (関数定義は変更なし) ---
 
-    // (fetchAndRenderPosts 関数は変更なし)
+    // --- 投稿取得と表示 ---
     async function fetchAndRenderPosts() {
         try {
             const response = await fetch('/posts'); 
@@ -65,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /**
-     * 投稿データの配列を受け取ってHTMLを描画する関数 (★★★ 変更あり ★★★)
+     * 投稿データの配列を受け取ってHTMLを描画する関数
      */
     function renderPosts(posts) {
         postListElement.innerHTML = '';
@@ -76,7 +75,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         const myPosts = getMyPosts(); // 削除ボタン用
-        const myDonmais = getMyDonmais(); // <<<--- どんまいボタン用 (リロード対策)
+        const myDonmais = getMyDonmais(); // どんまいボタン用
 
         posts.forEach(post => {
             if (!post) return; 
@@ -117,11 +116,8 @@ document.addEventListener('DOMContentLoaded', () => {
         return p.innerHTML.replace(/\n/g, '<br>');
     }
 
-    // ★★★ ここからが追加点 ★★★
     /**
      * ISO 8601 形式の日時文字列から経過時間を計算する関数
-     * @param {string} isoString - ISO 8601 形式の日時文字列
-     * @returns {string} - "〇分前", "〇時間前", "〇日前" などの文字列
      */
     function timeAgo(isoString) {
         if (!isoString) return '';
@@ -146,7 +142,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return `${diffDays}日前`; // それ以上
         }
     }
-    // ★★★ ここまでが追加点 ★★★
 
 
     function updateCharCount() {
@@ -198,11 +193,16 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    // モーダルの送信ボタンの処理
+    // --- モーダルの送信ボタンの処理 (連打防止機能あり) ---
     if (modalSubmitButton) {
         modalSubmitButton.addEventListener('click', async () => {
+            
+            // もし既にボタンが無効化されていたら処理を中断（二重送信防止の念押し）
+            if (modalSubmitButton.disabled) return;
+
             const postText = modalTextarea.value;
 
+            // バリデーション（入力チェック）
             if (!postText || postText.trim() === '') {
                 alert('何か入力してください！');
                 return;
@@ -212,6 +212,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
             
+            // ボタンを一時的に無効化（連打防止）
+            modalSubmitButton.disabled = true;
+
+            // 3秒後にボタンを再度有効化するタイマーを設定
+            setTimeout(() => {
+                modalSubmitButton.disabled = false;
+            }, 3000); // 3000ミリ秒 = 3秒
+
             try {
                 const response = await fetch('/posts', {
                     method: 'POST',
@@ -233,16 +241,32 @@ document.addEventListener('DOMContentLoaded', () => {
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
                 alert(`投稿に失敗しました。\n${error.message}`);
+                // エラー時でも3秒経てばボタンは復活しますが、
+                // 即座に再試行させたい場合はここで disabled = false にすることも可能です。
+                // 今回は「一度押したら3秒反応しない」という仕様を優先してそのままにします。
             }
         });
     }
 
-    //クリック処理
+    // --- クリック処理（どんまい・削除） ---
     postListElement.addEventListener('click', async (event) => {
         
         // どんまいボタン処理
         if (event.target.matches('.reaction__icon[data-action="donmai"]')) {
             const iconElement = event.target;
+            
+            // 連打防止
+            // すでに処理中フラグが立っていたら何もしない
+            if (iconElement.dataset.processing) return;
+
+            // 処理中フラグを立てる
+            iconElement.dataset.processing = "true";
+            
+            // 1秒(1000ミリ秒)後にフラグを削除して再度押せるようにする
+            setTimeout(() => {
+                delete iconElement.dataset.processing;
+            }, 500);
+
             const postElement = iconElement.closest('.post');
             const postId = postElement.dataset.postId;
             const countElement = postElement.querySelector('.reaction__count');
