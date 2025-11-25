@@ -2,15 +2,13 @@ const express = require('express');
 const app = express();
 const path = require('path');
 const crypto = require('crypto');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
 // ローカル開発時のみ dotenv を読み込む
 if (process.env.NODE_ENV !== 'production') {
   require('dotenv').config({ path: path.join(__dirname, '..', '.env.local') });
 }
 
-// --- ↓↓↓ ここからが変更点 ↓↓↓ ---
-
-// const { kv } = require('@vercel/kv'); // ← 削除
 const { Pool } = require('pg'); // pg をインポート
 
 // Neon (PostgreSQL) への接続プールを作成
@@ -22,8 +20,11 @@ const pool = new Pool({
   },
 });
 
-
-// --- ★★★ 新しい機能 (ここから) ★★★ ---
+// Gemini APIの準備 
+// キーがない場合(設定忘れなど)はundefinedになり、後の処理でスキップされます
+const genAI = process.env.GEMINI_API_KEY 
+  ? new GoogleGenerativeAI(process.env.GEMINI_API_KEY) 
+  : null;
 
 /**
  * 古い投稿（7日以上前）を削除する関数
@@ -46,11 +47,6 @@ async function cleanupOldPosts() {
     console.error('❌ 古い投稿の削除中にエラーが発生しました:', error);
   }
 }
-
-// --- ★★★ 新しい機能 (ここまで) ★★★ ---
-
-
-// --- ↑↑↑ ここまでが変更点 ↑↑↑ ---
 
 app.use(express.json());
 
@@ -83,7 +79,7 @@ app.get('/posts', async (req, res) => {
 // (POST /posts API: PostgreSQL に挿入するように変更)
 app.post('/posts', async (req, res) => {
   
-  // ★★★ 追加: 新規投稿の前に古い投稿を削除する
+  // 新規投稿の前に古い投稿を削除する
   await cleanupOldPosts();
 
   const newPostText = req.body.text;
@@ -96,6 +92,46 @@ app.post('/posts', async (req, res) => {
   if (newPostText.length > 255) {
      return res.status(400).json({ error: `投稿は 255 文字以内でお願いします` });
   }
+
+  // --- Geminiによる「やらかし判定」ここから ---
+  if (genAI) {
+      try {
+          // 高速なモデルを使用
+          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          
+          const prompt = `
+          あなたは「失敗談共有サイト」のAI管理者です。
+          以下の投稿文が「自身の失敗、ミス、やらかし、不幸な出来事、またはそれに対する反省や感想、自虐」に関連する内容か判定してください。
+          
+          判定基準:
+          - 失敗、ミス、ドジ、不幸、悲しみ、自虐、ネガティブな感情の吐露が含まれていれば「OK」
+          - 明らかに「成功体験」「単なる挨拶」「攻撃的な言葉」「意味不明な文字列」「文章になっていない(1単語のみなど)」「スパム」なら「NG」
+          - 曖昧な場合は、「NG」としてください。
+
+          投稿文:
+          ${newPostText}
+
+          回答は "OK" または "NG" の2文字だけで答えてください。
+          `;
+
+          const result = await model.generateContent(prompt);
+          const responseText = result.response.text().trim();
+
+          console.log(`Gemini判定: ${responseText} (投稿内容: ${newPostText})`);
+
+          // NG判定ならエラーを返してここで終了
+          if (responseText.toUpperCase().includes("NG")) {
+              return res.status(400).json({ 
+                  error: 'AI判定：「やらかし」や「ミス」以外の投稿や、過激な言葉は控えましょう。' 
+              });
+          }
+
+      } catch (aiError) {
+          console.error("Gemini API Error:", aiError);
+          // AIがエラーになっても、ユーザーの投稿自体は止めないようにそのまま進む
+      }
+  }
+  // --- Gemini判定 ここまで ---
 
   const newPostId = Date.now().toString();
   const deleteToken = crypto.randomBytes(16).toString('hex');
