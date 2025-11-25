@@ -20,6 +20,9 @@ const pool = new Pool({
   },
 });
 
+// AI判定を無効にしたい場合はここをfalseにする(開発中用)
+const ENABLE_AI_CHECK = false;
+
 // Gemini APIの準備 
 // キーがない場合(設定忘れなど)はundefinedになり、後の処理でスキップされます
 const genAI = process.env.GEMINI_API_KEY 
@@ -61,7 +64,7 @@ app.get('/', (req, res) => {
 // (GET /posts API: PostgreSQL から取得するように変更)
 app.get('/posts', async (req, res) => {
   
-  // ★★★ 追加: 投稿取得の前に古い投稿を削除する
+  // 投稿取得の前に古い投稿を削除する
   await cleanupOldPosts();
   
   try {
@@ -85,18 +88,11 @@ app.post('/posts', async (req, res) => {
   const newPostText = req.body.text;
   const maxLength = 200;
 
-  if (!newPostText || typeof newPostText !== 'string' || newPostText.trim() === '') {
-    return res.status(400).json({ error: '投稿内容が空です' });
-  }
-  // (DB側の制限(255)も超えていないかチェック)
-  if (newPostText.length > 255) {
-     return res.status(400).json({ error: `投稿は 255 文字以内でお願いします` });
-  }
+  
 
   // --- Geminiによる「やらかし判定」ここから ---
-  if (genAI) {
+  if (genAI && ENABLE_AI_CHECK) {
       try {
-          // 高速なモデルを使用
           const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
           
           const prompt = `
@@ -105,7 +101,7 @@ app.post('/posts', async (req, res) => {
           
           判定基準:
           - 失敗、ミス、ドジ、不幸、悲しみ、自虐、ネガティブな感情の吐露が含まれていれば「OK」
-          - 明らかに「成功体験」「単なる挨拶」「攻撃的な言葉」「意味不明な文字列」「文章になっていない(1単語のみなど)」「スパム」なら「NG」
+          - 明らかに「成功体験」「単なる挨拶」「攻撃的な言葉」「意味不明な文字列」「文章になっていない(1単語のみなど)」「スパム」「URL」なら「NG」
           - 曖昧な場合は、「NG」としてください。
 
           投稿文:
@@ -122,7 +118,7 @@ app.post('/posts', async (req, res) => {
           // NG判定ならエラーを返してここで終了
           if (responseText.toUpperCase().includes("NG")) {
               return res.status(400).json({ 
-                  error: 'AI判定：「やらかし」や「ミス」以外の投稿や、過激な言葉は控えましょう。' 
+                  error: 'AI判定：ここはミスッターだよ！やらかし以外の投稿とか、過激な言葉は控えてね。' 
               });
           }
 

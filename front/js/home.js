@@ -204,11 +204,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
             // バリデーション（入力チェック）
             if (!postText || postText.trim() === '') {
-                alert('何か入力してください！');
+                alert('何か入力してね！');
                 return;
             }
             if (postText.length > maxLength) {
-                alert(`投稿は ${maxLength} 文字以内でお願いします！ (現在 ${postText.length} 文字)`);
+                alert(`${maxLength} 文字以内で書いてね！ (現在 ${postText.length} 文字)`);
                 return;
             }
             
@@ -240,7 +240,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
-                alert(`投稿に失敗しました。\n${error.message}`);
+                alert(`投稿できなかったよ。\n${error.message}`);
                 // エラー時でも3秒経てばボタンは復活しますが、
                 // 即座に再試行させたい場合はここで disabled = false にすることも可能です。
                 // 今回は「一度押したら3秒反応しない」という仕様を優先してそのままにします。
@@ -304,7 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             } catch (error) {
                 console.error('どんまい処理に失敗しました:', error);
-                alert(`どんまいできませんでした。\n理由: ${error.message}`);
+                alert(`どんまいできなかったよ。\n ${error.message}`);
             }
         }
 
@@ -319,7 +319,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('この投稿の削除権限トークンが見つかりません。');
                 return;
             }
-            if (!confirm('本当にこの投稿を削除しますか？\n（この操作は取り消せません）')) {
+            if (!confirm('本当に消しちゃう？\n（この操作は取り消せません）')) {
                 return;
             }
 
@@ -340,7 +340,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 removeMyPost(postId); 
             } catch (error) {
                 console.error('投稿の削除に失敗しました:', error);
-                alert(`投稿の削除に失敗しました。\n${error.message}`);
+                alert(`投稿消せなかったよ。\n${error.message}`);
             }
         }
     });
