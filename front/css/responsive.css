@@ -1,5 +1,3 @@
-/* responsive.css に貼り付けるコード */
-
 /* 画面幅が 768px 以下のデバイス（一般的なタブレットやスマホ）に適用 */
 @media (max-width: 768px) {
 
@@ -59,11 +57,77 @@
 
     /* --- モーダルウィンドウ --- */
     .modal-content {
-        width: 95%; /* スマホでは画面幅いっぱいまで使う */
+        width: 85%; /* スマホでは画面幅いっぱいまで使う */
         padding: 20px;
     }
+    /* タイトル */
+    #post-modal .modal-title {
+        font-size: 20px;     /* ヘルプ画面と文字サイズを統一 */
+    }
+
+    /* 閉じる(×)ボタン */
+    .modal-close-button {
+        font-size: 32px;     /* 指で押しやすいように少し大きく */
+        padding: 0 10px;     /* タップ判定を広げる */
+    }
+
+    /* テキストエリア */
     .modal-textarea {
-        height: 200px; /* テキストエリアの高さを少し低く */
+        height: 180px;       /* スマホのキーボードが出ても隠れにくい高さに調整 */
+        font-size: 16px;     /* スマホ入力時の自動ズーム防止 */
+        padding: 15px;       /* 文字の開始位置を少し内側に */
+        line-height: 1.5;    /* 行間を広げて読みやすく */
+    }
+
+    /* 文字数カウンター */
+    .char-counter {
+        margin-top: 8px;
+        font-size: 13px;
+    }
+
+    /* 送信ボタンエリア */
+    .modal-footer {
+        margin-top: 10px;    /* ボタン上の余白を調整 */
+    }
+
+    /* --- ヘルプモーダル --- */
+    
+    /* ヘルプのウィンドウ設定 */
+
+    /* タイトル */
+    #help-modal .modal-title {
+        font-size: 20px;  /* 25px → 20px に縮小 */
+        margin-bottom: 5px;
+    }
+
+    /* 本文エリア */
+    .help-modal-body {
+        height: auto;     /* 固定高さ(260px)を解除して中身に合わせる */
+        max-height: 50vh; /* ただし画面の高さの半分以上にはならないようにする */
+        overflow-y: auto; /* はみ出たらスクロール */
+    }
+
+    /* 本文のテキスト */
+    .help-modal-body p {
+        font-size: 15px;  /* 18px → 15px に縮小 */
+        line-height: 1.6; /* 行間を少し詰める */
+        margin-bottom: 12px;
+    }
+
+    /* 注意書き */
+    .help-modal-body p.help-modal-note {
+        font-size: 13px;  /* 15px → 13px に縮小 */
+        margin-top: 20px;
+    }
+
+    /* OKボタン */
+    .help-modal-ok-button {
+        margin-bottom: 0;
+    }
+    
+    /* フッターの余白調整 */
+    .help-modal-footer {
+        margin-top: 20px;
     }
 
 }
