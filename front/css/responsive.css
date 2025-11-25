@@ -42,7 +42,6 @@
     .post__delete-button {
         /* 位置を微調整 */
         right: -5px; 
-        top: -5px;
     }
 
     /* --- 投稿ボタン (FAB) --- */

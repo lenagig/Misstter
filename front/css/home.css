@@ -114,6 +114,12 @@ body {
     color: #fff;             /* ホバーで文字を白に */
 }
 
+/* 削除ボタン(.post__delete-button)の直後にあるテキスト(.post__text)に対してのみスタイルを適用 */
+.post__delete-button + .post__text {
+    /* ボタンの幅(約60px) + 余白分を確保 */
+    padding-right: 60px;
+}
+
 /* テキスト本文 */
 .post__text {
     font-size: 18px;
