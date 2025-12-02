@@ -390,7 +390,7 @@ body {
     align-items: center;
     gap: 8px;
 
-    /* 通常時のスタイ */
+    /* 通常時のスタイル */
     background-color: #fff;
     border: 2px solid var(--fab-color);
     color: var(--fab-color);
