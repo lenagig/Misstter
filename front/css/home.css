@@ -35,7 +35,6 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    position: relative; /* ← ヘルプボタン配置のために追加 */
 }
 
 /* ヘッダーロゴ */
@@ -129,7 +128,6 @@ body {
     word-break: break-word;
 }
 
-/* ★★★ ここからが変更点 (margin-top を削除) ★★★ */
 /* リアクションエリア */
 .post__reaction {
     display: flex;
@@ -137,10 +135,7 @@ body {
     gap: 8px;
     font-size: 14px;
     color: var(--reaction-text-color);
-    /* margin-top: 16px; (削除) → .post__meta に移動 */
-    /* margin-left を削除 */
 }
-/* ★★★ ここまでが変更点 ★★★ */
 
 /* リアクションアイコン */
 .reaction__icon {
@@ -369,9 +364,60 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: background-color 0.2s ease, color 0.2s ease;
+
+    padding: 0;               /* 余計な余白をゼロにする（超重要） */
+    display: flex;            /* フレックスボックス化 */
+    justify-content: center;  /* 左右中央揃え */
+    align-items: center;      /* 上下中央揃え */
+    line-height: 1;           /* 行の高さの影響をリセット */
 }
 
 .header-help-button:hover {
+    background-color: var(--fab-color);
+    color: #fff;
+}
+
+/* 更新（リロード）ボタン */
+.header-reload-button {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+
+    height: 40px;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    /* 通常時のスタイル */
+    background-color: #fff;
+    border: 2px solid var(--fab-color);
+    color: var(--fab-color);
+    
+    border-radius: 30px;
+    padding: 6px 16px;
+    font-weight: bold;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all 0.2s ease; /* 色の変化もアニメーションさせる */
+}
+
+/* ボタン内の文字の位置調整 */
+.header-reload-button span {
+    position: relative;
+    top: -1px;
+}
+
+/* SVGアイコンの設定 */
+.header-reload-button svg {
+    fill: currentColor;
+    width: 20px;
+    height: 20px;
+}
+
+/* ホバー時のスタイル */
+.header-reload-button:hover {
     background-color: var(--fab-color);
     color: #fff;
 }

@@ -130,4 +130,20 @@
         margin-top: 20px;
     }
 
+    /* --- リロードボタン --- */
+
+    /* スマホでは文字を消す */
+    .header-reload-button span {
+        display: none;
+    }
+    
+    /* ボタンを丸くする調整 */
+    .header-reload-button {
+        padding: 0;         /* パディングをリセット */
+        width: 40px;        /* 正方形にする */
+        height: 40px;
+        border-radius: 50%; /* 完全な丸に */
+        justify-content: center; /* アイコンを真ん中に */
+    }
+
 }

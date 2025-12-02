@@ -17,6 +17,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeHelpModalButton = document.getElementById('help-modal-close-btn');
     const okHelpModalButton = document.getElementById('help-modal-ok-btn');
 
+    // リロードボタンの処理
+    const reloadButton = document.getElementById('reload-btn');
+    if (reloadButton) {
+        reloadButton.addEventListener('click', () => {
+            window.location.reload();
+        });
+    }
+
     // --- 削除機能用 LocalStorage ---
     const MY_POSTS_KEY = 'misstter_my_posts';
     function getMyPosts() { return JSON.parse(localStorage.getItem(MY_POSTS_KEY)) || {}; }
