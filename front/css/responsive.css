@@ -138,11 +138,15 @@
     }
     
     /* ボタンを丸くする調整 */
-    .header-reload-button {
+    .header-reload-button,
+    .header-help-button {
         padding: 0;         /* パディングをリセット */
-        width: 40px;        /* 正方形にする */
-        height: 40px;
+        width: 42px;        /* 正方形にする */
+        height: 42px;
         border-radius: 50%; /* 完全な丸に */
+    }
+    
+    .header-reload-button {
         justify-content: center; /* アイコンを真ん中に */
     }
 
