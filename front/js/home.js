@@ -105,7 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     <div class="post__meta">
                         <div class="post__reaction">
-                            <span class="reaction__icon ${isMyDonmai ? 'reacted' : ''}" data-action="donmai" role="button" tabindex="0">🤝</span>
+                            <span class="reaction__icon ${isMyDonmai ? 'reacted' : ''}" data-action="donmai" role="button" tabindex="0">
+                                <img src="./front/img/handinhand.png" alt="どんまい">
+                            </span>
                             <span class="reaction__count">${post.donmai || 0}</span>
                         </div>
                         <div class="post__timestamp">
@@ -258,10 +260,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- クリック処理（どんまい・削除） ---
     postListElement.addEventListener('click', async (event) => {
+
+        // 画像をクリックしても親のボタン要素を取得できるように .closest() を使う
+        const iconElement = event.target.closest('.reaction__icon[data-action="donmai"]');
         
         // どんまいボタン処理
-        if (event.target.matches('.reaction__icon[data-action="donmai"]')) {
-            const iconElement = event.target;
+        if (iconElement) {
             
             // 連打防止
             if (iconElement.dataset.processing) return;

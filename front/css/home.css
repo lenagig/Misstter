@@ -137,16 +137,29 @@ body {
     color: var(--reaction-text-color);
 }
 
-/* リアクションアイコン */
+/* リアクションアイコン（枠組み） */
 .reaction__icon {
-    font-size: 20px;
-    border: 1px solid #ddd; /* 枠線を追加 */
-    border-radius: 20px;    /* 枠を楕円形に */
-    padding: 2px 9px;       /* 内側の余白を追加 */
-    line-height: 1;         /* 絵文字の縦位置を微調整 */
-    cursor: pointer;        /* クリックできることを示すカーソル */
-    user-select: none;      /* テキスト選択を無効化 */
-    transition: background-color 0.2s ease, border-color 0.2s ease; /* 色が変わるアニメーション */
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    padding: 0px 10.5px;
+    
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.2s ease, border-color 0.2s ease;
+
+    /* 画像をど真ん中に配置するための設定 */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px; /* 最低限の幅を確保 */
+    min-height: 24px; /* 最低限の高さを確保 */
+}
+
+/* どんまい画像のスタイル */
+.reaction__icon img {
+    width: 24px;  /* 文字サイズに合わせて調整 */
+    height: 24px;
+    object-fit: contain; /* 縦横比を崩さない */
 }
 
 /* リアクションボタン押下時のスタイル */
@@ -155,7 +168,13 @@ body {
     border-color: #43c7ff;  /* 例: 少し濃い黄色 */
 }
 
-/* ★★★ ここからが追加点 ★★★ */
+/* リアクション数（カウント数字）の位置調整 */
+.reaction__count {
+    position: relative;
+    top: 0.75px;       /* 正の数(1px)で下に、負の数(-1px)で上に動きます */
+    line-height: 1; /* 余計な行間をカットして調整しやすくする */
+}
+
 /* リアクションとタイムスタンプを横並びにするためのラッパー */
 .post__meta {
     display: flex;
