@@ -175,6 +175,9 @@ document.addEventListener('DOMContentLoaded', () => {
             
             // モーダルを開くときにボタンを「押せる状態」にリセットする
             modalSubmitButton.disabled = false; 
+
+            // もしエラー落ちなどでスピナーのままだったら、紙飛行機に戻しておく
+            modalSubmitButton.innerHTML = '<img src="./front/img/send.png" alt="送信">';
             
             modalOverlay.classList.add('is-visible');
             modalTextarea.value = '';
@@ -209,6 +212,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- モーダルの送信ボタンの処理 ---
     if (modalSubmitButton) {
+        // 元のボタンの中身（紙飛行機アイコン）を保存しておく変数
+        const originalButtonContent = modalSubmitButton.innerHTML;
+
         modalSubmitButton.addEventListener('click', async () => {
             
             // もし既にボタンが無効化されていたら処理を中断
@@ -228,6 +234,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // ボタンを無効化（処理開始）
             modalSubmitButton.disabled = true;
 
+            // ボタンの中身を「ぐるぐる」に書き換える
+            modalSubmitButton.innerHTML = '<div class="button-spinner"></div>';
+
             try {
                 const response = await fetch('/posts', {
                     method: 'POST',
@@ -246,7 +255,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 modalOverlay.classList.remove('is-visible'); 
                 fetchAndRenderPosts(); 
                 
-                // 成功時はボタンを復活させない（モーダルが閉じるので）
 
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
@@ -254,6 +262,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // エラー時のみ、ボタンを復活させる（再入力できるように）
                 modalSubmitButton.disabled = false;
+
+                // ボタンを戻す
+                modalSubmitButton.innerHTML = originalButtonContent;
             }
         });
     }

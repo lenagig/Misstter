@@ -509,3 +509,19 @@ body {
     transform: scale(1.05);
     background-color: #039BE5; /* 少し濃い青 */
 }
+
+/* --- ローディングスピナー（ぐるぐる）のスタイル --- */
+.button-spinner {
+    width: 24px;
+    height: 24px;
+    border: 3px solid rgba(255, 255, 255, 0.3); /* 薄い白（軌道） */
+    border-top-color: #fff;                    /* 濃い白（回転部分） */
+    border-radius: 50%;                        /* 丸くする */
+    animation: spin 0.8s linear infinite;      /* 回転アニメーション */
+    margin: auto;                              /* 中央寄せ */
+}
+
+/* 回転のアニメーション定義 */
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
