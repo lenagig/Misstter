@@ -21,7 +21,7 @@ const pool = new Pool({
 });
 
 // AI判定を無効にしたい場合はここをfalseにする(開発中用)
-const ENABLE_AI_CHECK = false;
+const ENABLE_AI_CHECK = true;
 
 // Gemini APIの準備 
 // キーがない場合(設定忘れなど)はundefinedになり、後の処理でスキップされます
@@ -93,7 +93,7 @@ app.post('/posts', async (req, res) => {
   // --- Geminiによる「やらかし判定」ここから ---
   if (genAI && ENABLE_AI_CHECK) {
       try {
-          const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+          const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
           
           const prompt = `
           あなたは「失敗談共有サイト」のAI管理者です。
