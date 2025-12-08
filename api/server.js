@@ -91,6 +91,7 @@ app.post('/posts', async (req, res) => {
                   { role: "user", content: prompt }
               ],
               model: "llama-3.1-8b-instant", // モデル
+              temperature: 0,   //一貫性を持たせるためのコード
           });
 
           const responseText = chatCompletion.choices[0]?.message?.content?.trim() || "";
