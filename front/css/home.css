@@ -200,8 +200,6 @@ body {
     flex-shrink: 0; /* 縮まないようにする */
     padding-left: 10px; /* リアクションと近すぎる場合の間隔 */
 }
-/* ★★★ ここまでが追加点 ★★★ */
-
 
 /* 投稿ボタン (Floating Action Button) */
 .fab {
@@ -456,7 +454,7 @@ body {
 }
 
 .help-modal-body {
-    height: 260px;       /* 投稿モーダルのテキストエリアと同じ高さを指定 */
+    height: 310px;       /* 投稿モーダルのテキストエリアと同じ高さを指定 */
     overflow-y: auto;  /* 内容がはみ出た場合にスクロールさせる */
 }
 
