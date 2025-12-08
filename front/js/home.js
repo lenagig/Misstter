@@ -339,29 +339,42 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert('この投稿の削除権限トークンが見つかりません。');
                 return;
             }
-            if (!confirm('本当に消しちゃう？\n（この操作は取り消せません）')) {
-                return;
-            }
 
-            try {
-                const response = await fetch(`/posts/${postId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ token: token }), 
-                });
+            // ダイアログ表示中だけ色を変える処理
+            deleteButton.classList.add('is-active');
 
-                if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+            // 色が変わるのを確実にするため、少しだけタイミングを遅らせてダイアログを出す
+            setTimeout(async () => {
+                const isConfirmed = confirm('本当に消しちゃう？\n（この操作は取り消せません）');
+                
+                // ダイアログ操作が終わったらすぐに色を戻す
+                deleteButton.classList.remove('is-active');
+
+                if (!isConfirmed) {
+                    return; // キャンセル時は何もしない
                 }
-                postElement.remove(); 
-                removeMyPost(postId); 
-            } catch (error) {
-                console.error('投稿の削除に失敗しました:', error);
-                alert(`投稿消せなかったよ。\n${error.message}`);
-            }
+
+                // --- 以前と同じ削除処理 ---
+                try {
+                    const response = await fetch(`/posts/${postId}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ token: token }), 
+                    });
+
+                    if (!response.ok) {
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                    }
+                    postElement.remove(); 
+                    removeMyPost(postId); 
+                } catch (error) {
+                    console.error('投稿の削除に失敗しました:', error);
+                    alert(`投稿消せなかったよ。\n${error.message}`);
+                }
+            }, 10); // 10ミリ秒だけ待つ
         }
     });
 

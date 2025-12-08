@@ -116,11 +116,11 @@ body {
     }
 }
 
-/* スマホでタップした瞬間（指が触れている間）だけ色を変える */
-.post__delete-button:active {
+/* ダイアログ表示中に強制的に適用するスタイル */
+.post__delete-button.is-active {
     background-color: #FF5252;
     color: #fff;
-    transition: none; /* タップ時は瞬時に色を変える */
+    transition: none; /* 即座に色を変える */
 }
 
 /* 削除ボタン(.post__delete-button)の直後にあるテキスト(.post__text)に対してのみスタイルを適用 */
