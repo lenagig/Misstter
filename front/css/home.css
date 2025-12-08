@@ -108,9 +108,19 @@ body {
     transition: background-color 0.2s ease, color 0.2s ease; /* ホバー効果用 */
     z-index: 5; 
 }
-.post__delete-button:hover {
-    background-color: #FF5252; /* ホバーで背景を赤に */
-    color: #fff;             /* ホバーで文字を白に */
+/* PCなど、マウスでホバー操作ができるデバイスのみ適用 */
+@media (hover: hover) {
+    .post__delete-button:hover {
+        background-color: #FF5252;
+        color: #fff;
+    }
+}
+
+/* スマホでタップした瞬間（指が触れている間）だけ色を変える */
+.post__delete-button:active {
+    background-color: #FF5252;
+    color: #fff;
+    transition: none; /* タップ時は瞬時に色を変える */
 }
 
 /* 削除ボタン(.post__delete-button)の直後にあるテキスト(.post__text)に対してのみスタイルを適用 */
