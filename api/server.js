@@ -79,18 +79,10 @@ app.post('/posts', async (req, res) => {
   if (groq && ENABLE_AI_CHECK) {
       try {
           const prompt = `
-          あなたは「失敗談共有サイト」のAI管理者です。
-          以下の投稿文が「自身の失敗、ミス、やらかし、不幸な出来事、またはそれに対する反省や感想、自虐」に関連する内容か判定してください。
-          
-          判定基準:
-          - 失敗、ミス、ドジ、不幸、悲しみ、自虐、ネガティブな感情の吐露が含まれていれば「OK」
-          - 明らかに「成功体験」「単なる挨拶」「攻撃的な言葉」「意味不明な文字列」「文章になっていない(1単語のみなど)」「スパム」「URL」なら「NG」
-          - 曖昧な場合は、「NG」としてください。
+          以下の投稿が「自身の失敗、ミス、不幸、自虐」に関する内容なら "OK"、それ以外（成功体験、攻撃的、スパム、URL、意味不明等）なら "NG" と答えて。
 
-          投稿文:
+          投稿:
           ${newPostText}
-
-          回答は "OK" または "NG" の2文字だけで答えてください。
           `;
 
           // Groqへのリクエスト
@@ -98,7 +90,7 @@ app.post('/posts', async (req, res) => {
               messages: [
                   { role: "user", content: prompt }
               ],
-              model: "llama-3.3-70b-versatile", // 無料で使える高性能モデル
+              model: "llama-3.1-8b-instant", // モデル
           });
 
           const responseText = chatCompletion.choices[0]?.message?.content?.trim() || "";
