@@ -179,6 +179,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // もしエラー落ちなどでスピナーのままだったら、紙飛行機に戻しておく
             modalSubmitButton.innerHTML = '<img src="./front/img/send.png" alt="送信">';
             
+            openModalButton.classList.add('is-active'); // アクティブ状態を付与
             modalOverlay.classList.add('is-visible');
             modalTextarea.value = '';
             updateCharCount();
@@ -188,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (closeModalButton) {
         closeModalButton.addEventListener('click', () => {
             modalOverlay.classList.remove('is-visible');
+            openModalButton.classList.remove('is-active'); // アクティブ状態を解除
         });
     }
 
@@ -195,12 +197,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (openHelpButton) {
         openHelpButton.addEventListener('click', () => {
             helpModalOverlay.classList.add('is-visible');
+            openHelpButton.classList.add('is-active'); // アクティブ状態を付与
         });
     }
     
     if (okHelpModalButton) {
         okHelpModalButton.addEventListener('click', () => {
             helpModalOverlay.classList.remove('is-visible');
+            openHelpButton.classList.remove('is-active'); // アクティブ状態を解除
         });
     }
 
@@ -253,6 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     addMyPost(result.post.id, result.deleteToken); 
                 }
                 modalOverlay.classList.remove('is-visible'); 
+                openModalButton.classList.remove('is-active'); // アクティブ状態を解除
                 fetchAndRenderPosts(); 
                 
 

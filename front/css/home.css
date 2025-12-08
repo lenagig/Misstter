@@ -218,7 +218,8 @@ body {
     transition: transform 0.2s ease;
 }
 
-.fab:hover {
+.fab:hover,
+.fab.is-active {
     transform: scale(1.1);
 }
 
@@ -399,7 +400,8 @@ body {
     line-height: 1;           /* 行の高さの影響をリセット */
 }
 
-.header-help-button:hover {
+.header-help-button:hover,
+.header-help-button.is-active {
     background-color: var(--fab-color);
     color: #fff;
 }

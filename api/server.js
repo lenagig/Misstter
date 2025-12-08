@@ -79,7 +79,7 @@ app.post('/posts', async (req, res) => {
   if (groq && ENABLE_AI_CHECK) {
       try {
           const prompt = `
-          以下の投稿が「自身の失敗、ミス、不幸、自虐」に関する内容なら "OK"、それ以外（成功体験、攻撃的、スパム、URL、意味不明等）なら "NG" と答えて。
+          以下の投稿が「失敗、ミス、不幸、自虐」のどれかに該当するなら "OK"、それ以外（成功体験、攻撃的、スパム、URL、意味不明等）なら "NG" とだけ答えて。
 
           投稿:
           ${newPostText}
