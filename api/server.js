@@ -78,10 +78,13 @@ app.post('/posts', async (req, res) => {
   // --- Groq (Llama 3) による「やらかし判定」ここから ---
   if (groq && ENABLE_AI_CHECK) {
       try {
+          // プロンプトを修正：失敗談以外を厳格にNGとする
           const prompt = `
-          以下の投稿が「失敗、ミス、不幸、自虐」のどれかに該当するなら "OK"、それ以外（成功体験、攻撃的、スパム、URL、意味不明等）なら "NG" とだけ答えて。
+          You are a moderator for a social network sharing failure stories.
+          If the following post falls under "failure, mistake, misfortune, or self-deprecation", answer "OK".
+          Otherwise (success stories, offensive, spam, URL, nonsense, etc.), answer only "NG".
 
-          投稿:
+          Post:
           ${newPostText}
           `;
 
@@ -90,8 +93,8 @@ app.post('/posts', async (req, res) => {
               messages: [
                   { role: "user", content: prompt }
               ],
-              model: "llama-3.1-8b-instant", // モデル
-              temperature: 0,   //一貫性を持たせるためのコード
+              model: "llama-3.1-8b-instant",
+              temperature: 0,
           });
 
           const responseText = chatCompletion.choices[0]?.message?.content?.trim() || "";

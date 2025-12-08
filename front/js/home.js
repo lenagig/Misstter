@@ -290,7 +290,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             setTimeout(() => {
                 delete iconElement.dataset.processing;
-            }, 500);
+            }, 300);
 
             const postElement = iconElement.closest('.post');
             const postId = postElement.dataset.postId;
