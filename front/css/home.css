@@ -581,8 +581,8 @@ body {
 
 /* アイコン画像のスタイル */
 .mood-option img {
-    width: 45px;
-    height: 45px;
+    width: 44px;
+    height: 44px;
     object-fit: contain;
     opacity: 0.7; /* 未選択時は少し薄くする */
     transition: opacity 0.2s ease, transform 0.2s ease;
