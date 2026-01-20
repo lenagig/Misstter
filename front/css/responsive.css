@@ -12,6 +12,7 @@
         padding: 24px 5%; 
     }
 
+
     /* --- 投稿カード --- */
     .post {
         padding: 16px; /* カード内の余白を少し詰める */
@@ -42,6 +43,7 @@
         right: -5px; 
     }
 
+
     /* --- 投稿ボタン (FAB) --- */
     .fab {
         width: 60px;  /* ボタンを少し小さく */
@@ -54,6 +56,7 @@
         height: 24px;
         left: 1px;
     }
+
 
     /* --- モーダルウィンドウ --- */
     .modal-content {
@@ -89,6 +92,11 @@
     .modal-footer {
         margin-top: 10px;    /* ボタン上の余白を調整 */
     }
+
+    .modal-submit-button {
+        top: 0px;
+    }
+
 
     /* --- ヘルプモーダル --- */
     
@@ -130,6 +138,7 @@
         margin-top: 20px;
     }
 
+
     /* --- リロードボタン --- */
 
     /* スマホでは文字を消す */
@@ -148,5 +157,28 @@
     
     .header-reload-button {
         justify-content: center; /* アイコンを真ん中に */
+    }
+
+
+    /* --- アイコン選択 --- */
+
+
+    .mood-selector-label {
+        font-size: 14px;       /* 文字サイズを少し小さく */
+    }
+
+    .mood-options {
+        gap: 6px;              /* アイコン同士の隙間を詰める (PCの17pxから縮小) */
+    }
+
+    .mood-option {
+        width: 44px;           /* アイコンのタッチ領域を小さく (52px -> 42px) */
+        height: 44px;
+        border-radius: 10px;   /* 角の丸みをサイズに合わせて調整 */
+    }
+
+    .mood-option img {
+        width: 36px;           /* 画像サイズも小さく (45px -> 34px) */
+        height: 36px;
     }
 }
