@@ -208,6 +208,51 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // --- モーダル外クリックで閉じる処理 (PCのみ) ---
+    // タッチデバイス(スマホ・タブレット)では誤操作防止のため閉じないようにする
+    function setupModalOutsideClick(overlay, closeAction) {
+        let isMouseDownOnOverlay = false;
+
+        // マウスボタンを押した位置を記録
+        overlay.addEventListener('mousedown', (event) => {
+            isMouseDownOnOverlay = (event.target === overlay);
+        });
+
+        overlay.addEventListener('click', (event) => {
+            // マウスを押した場所(mousedown)と離した場所(click)が
+            // 両方ともオーバーレイの場合だけ閉じる
+            if (isMouseDownOnOverlay && event.target === overlay) {
+                // PC (マウス操作ができるデバイス) かどうかを判定
+                // (hover: hover) はマウスカーソルがある環境で true になる
+                const isMouseDevice = window.matchMedia('(hover: hover)').matches;
+                if (isMouseDevice) {
+                    closeAction();
+                }
+            }
+            // フラグをリセット
+            isMouseDownOnOverlay = false;
+        });
+    }
+
+    // 投稿モーダルの外側クリック設定
+    if (modalOverlay) {
+        setupModalOutsideClick(modalOverlay, () => {
+            //送信処理中（ボタンが無効化されている）場合は閉じない
+            if (modalSubmitButton && modalSubmitButton.disabled) return;
+
+            modalOverlay.classList.remove('is-visible');
+            if (openModalButton) openModalButton.classList.remove('is-active');
+        });
+    }
+
+    // ヘルプモーダルの外側クリック設定
+    if (helpModalOverlay) {
+        setupModalOutsideClick(helpModalOverlay, () => {
+            helpModalOverlay.classList.remove('is-visible');
+            if (openHelpButton) openHelpButton.classList.remove('is-active');
+        });
+    }
+
     // modalTextarea の input イベント
     if (modalTextarea) {
         modalTextarea.addEventListener('input', updateCharCount);
