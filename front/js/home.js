@@ -203,6 +203,9 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     if (closeModalButton) {
         closeModalButton.addEventListener('click', () => {
+            // 送信処理中（ボタンが無効化されている）場合は閉じない
+            if (modalSubmitButton && modalSubmitButton.disabled) return;
+
             modalOverlay.classList.remove('is-visible');
             openModalButton.classList.remove('is-active'); // アクティブ状態を解除
         });
