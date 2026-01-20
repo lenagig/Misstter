@@ -24,8 +24,8 @@
         height: 50px;
     }
     .post__emoji img {
-        width: 35px; /* アイコン内の画像を小さく */
-        height: 35px;
+        width: 40px; /* アイコン内の画像を小さく */
+        height: 40px;
     }
 
     /* 投稿テキスト */
