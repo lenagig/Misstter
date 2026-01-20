@@ -63,8 +63,9 @@ app.get('/', (req, res) => {
 app.get('/posts', async (req, res) => {
   await cleanupOldPosts();
   try {
+    // iconも取得するように変更
     const result = await pool.query(
-      'SELECT id, text, donmai, timestamp FROM posts ORDER BY timestamp DESC LIMIT 50'
+      'SELECT id, text, donmai, timestamp, icon FROM posts ORDER BY timestamp DESC LIMIT 50'
     );
     res.json(result.rows);
   } catch (error) {
@@ -78,6 +79,7 @@ app.post('/posts', async (req, res) => {
   
   await cleanupOldPosts();
   const newPostText = req.body.text || ""; // nullチェックのためデフォルト値を設定
+  const newPostIcon = req.body.icon || "sadicon.png"; // アイコンが無ければデフォルト
 
   // 静的NGワードチェック (AI判定の前に実行)
   // 明らかなNGワードが含まれている場合はAI APIを呼ばずに即座に弾くことでコストと時間を節約する
@@ -135,9 +137,10 @@ app.post('/posts', async (req, res) => {
   const trimmedText = newPostText.trim();
 
   try {
+    // icon を保存するように SQL を変更
     const result = await pool.query(
-      'INSERT INTO posts (id, text, donmai, timestamp, deleteToken) VALUES ($1, $2, $3, $4, $5) RETURNING id, text, donmai, timestamp',
-      [newPostId, trimmedText, 0, timestamp, deleteToken]
+      'INSERT INTO posts (id, text, donmai, timestamp, deleteToken, icon) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, text, donmai, timestamp, icon',
+      [newPostId, trimmedText, 0, timestamp, deleteToken, newPostIcon]
     );
 
     const newPost = result.rows[0];

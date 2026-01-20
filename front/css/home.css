@@ -535,3 +535,66 @@ body {
 @keyframes spin {
     to { transform: rotate(360deg); }
 }
+
+/* ▼▼▼ アイコン選択用のスタイルを追加 ▼▼▼ */
+.mood-selector {
+    margin-top: 20px;
+}
+
+.mood-selector-label {
+    font-size: 14px;
+    color: #888;
+    margin: 0 0 8px 0;
+}
+
+.mood-options {
+    display: flex;
+    gap: 15px; /* アイコン同士の間隔 */
+    justify-content: flex-start; /* 左寄せ (中央寄せにしたい場合は center) */
+}
+
+/* 各選択肢のスタイル */
+.mood-option {
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    border: 2px solid transparent; /* 選択されていない時は透明な枠線 */
+    transition: all 0.2s ease;
+}
+
+/* 本物のラジオボタンは隠す */
+.mood-option input[type="radio"] {
+    display: none;
+}
+
+/* アイコン画像のスタイル */
+.mood-option img {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    opacity: 0.5; /* 未選択時は少し薄くする */
+    transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+/* ホバー時の挙動 */
+.mood-option:hover img {
+    opacity: 0.8;
+    transform: scale(1.1);
+}
+
+/* 選択された時の挙動 */
+.mood-option input[type="radio"]:checked + img {
+    opacity: 1;
+    transform: scale(1.1);
+}
+
+.mood-option:has(input[type="radio"]:checked) {
+    background-color: #E1F5FE; /* 薄い青背景 */
+    border-color: var(--fab-color); /* 青い枠線 */
+}

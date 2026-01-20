@@ -101,9 +101,13 @@ document.addEventListener('DOMContentLoaded', () => {
             // LocalStorage の情報を使ってどんまい済みか判断
             const isMyDonmai = myDonmais.has(String(post.id)); 
 
+            // アイコンの画像ファイル名を決定（データが無い場合はデフォルト）
+            const iconFilename = post.icon || 'sadicon.png';
+            const iconSrc = `./front/img/${escapeHTML(iconFilename)}`;
+
             postElement.innerHTML = `
                 <div class="post__emoji">
-                    <img src="./front/img/sadicon.png" alt="悲しいアイコン">
+                    <img src="${iconSrc}" alt="アイコン">
                 </div>
                 <div class="post__content">
                     ${isMyPost ? `<button class="post__delete-button" data-action="delete">削除</button>` : ''}
@@ -189,6 +193,11 @@ document.addEventListener('DOMContentLoaded', () => {
             modalOverlay.classList.add('is-visible');
             modalTextarea.value = '';
             updateCharCount();
+            
+            // アイコン選択をリセット（一番目を選択状態にする）
+            const firstRadio = document.querySelector('input[name="mood"][value="sadicon.png"]');
+            if (firstRadio) firstRadio.checked = true;
+
             modalTextarea.focus();
         });
     }
@@ -285,6 +294,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 alert(`${maxLength} 文字以内で書いてね！ (現在 ${postText.length} 文字)`);
                 return;
             }
+
+            // 選択されたアイコンを取得
+            const selectedIconRadio = document.querySelector('input[name="mood"]:checked');
+            const selectedIcon = selectedIconRadio ? selectedIconRadio.value : 'sadicon.png';
             
             // ボタンを無効化（処理開始）
             modalSubmitButton.disabled = true;
@@ -296,7 +309,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 const response = await fetch('/posts', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', },
-                    body: JSON.stringify({ text: postText }),
+                    body: JSON.stringify({ 
+                        text: postText,
+                        icon: selectedIcon  // アイコン情報も一緒に送る
+                    }),
                 });
 
                 if (!response.ok) {
