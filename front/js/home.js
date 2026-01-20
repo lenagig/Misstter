@@ -56,6 +56,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return getMyDonmais().has(id);
     }
 
+    // --- 共通関数: 投稿がない時のメッセージを表示 ---
+    function showEmptyMessage() {
+        postListElement.innerHTML = '<p style="text-align: center; color: #888;">まだ誰もやらかしていません。一番乗りになろう！</p>';
+    }
+
     // --- 投稿取得と表示 ---
     async function fetchAndRenderPosts() {
         try {
@@ -77,8 +82,9 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderPosts(posts) {
         postListElement.innerHTML = '';
 
+        // 1. ここで「最初から0件」の場合のチェック
         if (posts.length === 0) {
-            postListElement.innerHTML = '<p style="text-align: center; color: #888;">まだ誰もやらかしていません。一番乗りになろう！</p>';
+            showEmptyMessage(); // 共通関数を呼ぶ
             return;
         }
 
@@ -420,6 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                     postElement.remove(); 
                     removeMyPost(postId); 
+
+                    // 2. ここで「消した結果0件になった」場合のチェック
+                    if (postListElement.children.length === 0) {
+                        showEmptyMessage(); // 共通関数を呼ぶ
+                    }
+
                 } catch (error) {
                     console.error('投稿の削除に失敗しました:', error);
                     alert(`投稿消せなかったよ。\n${error.message}`);
