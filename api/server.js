@@ -27,6 +27,10 @@ const groq = process.env.GROQ_API_KEY
   ? new Groq({ apiKey: process.env.GROQ_API_KEY }) 
   : null;
 
+// AI判定の前に弾く、あからさまなNGワードリスト
+const STATIC_NG_WORDS = ['死ね', '4ね', '殺す', 'ころす', 'コロス', 'ｺﾛｽ', '56す',
+                         '消えろ', '障害', '援助交際', '援交', 'パパ活', 'ママ活']; 
+
 /**
  * 古い投稿（7日以上前）を削除する関数
  */
@@ -73,7 +77,19 @@ app.get('/posts', async (req, res) => {
 app.post('/posts', async (req, res) => {
   
   await cleanupOldPosts();
-  const newPostText = req.body.text;
+  const newPostText = req.body.text || ""; // nullチェックのためデフォルト値を設定
+
+  // 静的NGワードチェック (AI判定の前に実行)
+  // 明らかなNGワードが含まれている場合はAI APIを呼ばずに即座に弾くことでコストと時間を節約する
+  const containsNgWord = STATIC_NG_WORDS.some(word => newPostText.includes(word));
+  
+  if (containsNgWord) {
+      console.log(`静的NGワード検知: ${newPostText}`);
+      // AI判定と同じエラーメッセージを返す
+      return res.status(400).json({ 
+          error: 'AI判定：やらかし以外の投稿とか、過激な言葉は控えてね。' 
+      });
+  }
 
   // --- Groq (Llama 3) による「やらかし判定」ここから ---
   if (groq && ENABLE_AI_CHECK) {
