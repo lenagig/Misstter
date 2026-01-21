@@ -186,6 +186,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // モーダルを開くときにボタンを「押せる状態」にリセットする
             modalSubmitButton.disabled = false; 
 
+            // ★追加: テキストエリアとアイコン選択も有効化する（リセット）
+            modalTextarea.disabled = false;
+            const moodInputs = document.querySelectorAll('input[name="mood"]');
+            moodInputs.forEach(input => input.disabled = false);
+
             // もしエラー落ちなどでスピナーのままだったら、紙飛行機に戻しておく
             modalSubmitButton.innerHTML = '<img src="./front/img/send.png" alt="送信">';
             
@@ -305,6 +310,11 @@ document.addEventListener('DOMContentLoaded', () => {
             // ボタンを無効化（処理開始）
             modalSubmitButton.disabled = true;
 
+            // ★追加: テキストエリアとアイコン選択を無効化
+            modalTextarea.disabled = true;
+            const moodInputs = document.querySelectorAll('input[name="mood"]');
+            moodInputs.forEach(input => input.disabled = true);
+
             // ボタンの中身を「ぐるぐる」に書き換える
             modalSubmitButton.innerHTML = '<div class="button-spinner"></div>';
 
@@ -337,6 +347,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 
                 // エラー時のみ、ボタンを復活させる（再入力できるように）
                 modalSubmitButton.disabled = false;
+
+                // ★追加: テキストエリアとアイコン選択を復活させる
+                modalTextarea.disabled = false;
+                moodInputs.forEach(input => input.disabled = false);
 
                 // ボタンを戻す
                 modalSubmitButton.innerHTML = originalButtonContent;
