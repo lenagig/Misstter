@@ -604,3 +604,16 @@ body {
     background-color: #E1F5FE; /* 薄い青背景 */
     border-color: var(--fab-color); /* 青い枠線 */
 }
+
+
+/* --- 投稿読み込み中のスピナー --- */
+.loading-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid #ecf0f3;          /* 薄いグレー（未回転部分） */
+    border-top-color: var(--fab-color); /* 青（回転部分） */
+    border-radius: 50%;                 /* 丸くする */
+    animation: spin 0.8s linear infinite; /* 既存のspinアニメーションを利用 */
+    margin: 30px auto;                  /* 上下の余白を確保して中央寄せ */
+    display: block;
+}

@@ -63,6 +63,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- 投稿取得と表示 ---
     async function fetchAndRenderPosts() {
+        
+        // データ取得開始前に、リスト内をスピナーにする
+        postListElement.innerHTML = '<div class="loading-spinner"></div>';
+
         try {
             const response = await fetch('/posts'); 
             if (!response.ok) {
