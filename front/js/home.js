@@ -21,9 +21,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const reloadButton = document.getElementById('reload-btn');
     if (reloadButton) {
         reloadButton.addEventListener('click', () => {
-            window.location.reload();
+            // 全リロード（初期化して読み込み直し）
+            currentOffset = 0;
+            hasMorePosts = true;
+            fetchAndRenderPosts(false); // false = 上書きモード
+            // ページトップへ戻る
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         });
     }
+
+    // --- 無限スクロール用変数 ---
+    let currentOffset = 0;      // 現在読み込んでいる件数
+    let isLoading = false;      // 読み込み中フラグ
+    let hasMorePosts = true;    // まだ読み込める投稿があるか
+    const LIMIT = 50;           // 1回の取得件数
 
     // --- 削除機能用 LocalStorage ---
     const MY_POSTS_KEY = 'misstter_my_posts';
@@ -61,39 +72,94 @@ document.addEventListener('DOMContentLoaded', () => {
         postListElement.innerHTML = '<p style="text-align: center; color: #888;">まだ誰もやらかしていません。一番乗りになろう！</p>';
     }
 
-    // --- 投稿取得と表示 ---
-    async function fetchAndRenderPosts() {
+    // --- ローディングインジケーター（無限スクロール用） ---
+    function showBottomLoader() {
+        // 既にあったら作らない
+        if (document.getElementById('bottom-loader')) return;
         
-        // データ取得開始前に、リスト内をスピナーにする
-        postListElement.innerHTML = '<div class="loading-spinner"></div>';
+        const loader = document.createElement('div');
+        loader.id = 'bottom-loader';
+        loader.className = 'loading-spinner'; // CSSにあるクラスを再利用
+        loader.style.margin = '20px auto';
+        loader.style.width = '30px';
+        loader.style.height = '30px';
+        loader.style.borderWidth = '3px';
+        postListElement.after(loader); // リストの外側（下）に追加
+    }
+
+    function hideBottomLoader() {
+        const loader = document.getElementById('bottom-loader');
+        if (loader) loader.remove();
+    }
+
+    // --- 投稿取得と表示 ---
+    // isAppend: trueなら追記、falseなら全書き換え（初期表示やリロード）
+    async function fetchAndRenderPosts(isAppend = false) {
+        
+        if (isLoading) return; // 連打防止
+        isLoading = true;
+
+        // 初期読み込み時はリスト内をスピナーにする
+        if (!isAppend) {
+            postListElement.innerHTML = '<div class="loading-spinner"></div>';
+        } else {
+            // 追加読み込み時は下に小さく出す
+            showBottomLoader();
+        }
 
         try {
-            const response = await fetch('/posts'); 
+            // offsetパラメータを付けてリクエスト
+            const response = await fetch(`/posts?offset=${currentOffset}`); 
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             const posts = await response.json(); 
-            renderPosts(posts); 
+
+            // データ件数がLIMIT未満なら、もう次は無いということ
+            if (posts.length < LIMIT) {
+                hasMorePosts = false;
+            }
+
+            renderPosts(posts, isAppend); 
+
+            // 次回のためにオフセットを進める
+            currentOffset += posts.length;
+
         } catch (error) {
             console.error('投稿の取得に失敗しました:', error);
-            postListElement.innerHTML = '<p style="color: red; text-align: center;">投稿の読み込みに失敗しました。</p>';
+            if (!isAppend) {
+                postListElement.innerHTML = '<p style="color: red; text-align: center;">投稿の読み込みに失敗しました。</p>';
+            }
+        } finally {
+            isLoading = false;
+            hideBottomLoader();
         }
     }
 
     /**
      * 投稿データの配列を受け取ってHTMLを描画する関数
      */
-    function renderPosts(posts) {
-        postListElement.innerHTML = '';
-
-        // 1. ここで「最初から0件」の場合のチェック
-        if (posts.length === 0) {
-            showEmptyMessage(); // 共通関数を呼ぶ
-            return;
+    function renderPosts(posts, isAppend) {
+        
+        // 上書きモードなら一度空にする
+        if (!isAppend) {
+            postListElement.innerHTML = '';
+            
+            // 最初から0件の場合
+            if (posts.length === 0) {
+                showEmptyMessage();
+                return;
+            }
+        } else {
+            // 追記モードで0件だった場合（念のため）
+            if (posts.length === 0) return;
         }
 
         const myPosts = getMyPosts(); // 削除ボタン用
         const myDonmais = getMyDonmais(); // どんまいボタン用
+
+        // DocumentFragmentを使って一気に追加（パフォーマンス向上）
+        const fragment = document.createDocumentFragment();
 
         posts.forEach(post => {
             if (!post) return; 
@@ -130,8 +196,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     </div>
             `;
-            postListElement.append(postElement); 
+            fragment.appendChild(postElement); 
         });
+
+        postListElement.appendChild(fragment);
     }
 
     function escapeHTML(str) {
@@ -179,6 +247,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
+
+    // --- スクロールイベント（無限スクロール検知） ---
+    window.addEventListener('scroll', () => {
+        // まだ読み込める投稿があり、かつ現在ロード中でない場合のみ判定
+        if (hasMorePosts && !isLoading) {
+            // 画面の一番下から 100px 手前までスクロールしたら発火
+            const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+            if (scrollTop + clientHeight >= scrollHeight - 100) {
+                fetchAndRenderPosts(true); // true = 追記モード
+            }
+        }
+    });
 
     // --- モーダル開閉イベント ---
 
@@ -342,8 +422,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 modalOverlay.classList.remove('is-visible'); 
                 openModalButton.classList.remove('is-active'); // アクティブ状態を解除
-                fetchAndRenderPosts(); 
                 
+                // 投稿後は最初から読み直す
+                currentOffset = 0;
+                hasMorePosts = true;
+                fetchAndRenderPosts(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
 
             } catch (error) {
                 console.error('投稿に失敗しました:', error);
@@ -478,6 +562,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --- 初期表示 ---
-    fetchAndRenderPosts();
+    fetchAndRenderPosts(false); // 初期表示は追記モードOFF
 
 });

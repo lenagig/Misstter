@@ -59,13 +59,23 @@ app.get('/', (req, res) => {
 
 // --- API ---
 
-// 投稿一覧取得
+// 投稿一覧取得（ページネーション対応）
 app.get('/posts', async (req, res) => {
-  await cleanupOldPosts();
+  
+  // クエリパラメータから offset を取得（指定がなければ0）
+  const offset = parseInt(req.query.offset) || 0;
+  const limit = 50; // 1回に取得する件数
+
+  // 最初のページの時だけ古い投稿の削除処理を行う（毎回やると重いため）
+  if (offset === 0) {
+    await cleanupOldPosts();
+  }
+
   try {
-    // iconも取得するように変更
+    // LIMIT と OFFSET を使って分割して取得する
     const result = await pool.query(
-      'SELECT id, text, donmai, timestamp, icon FROM posts ORDER BY timestamp DESC LIMIT 50'
+      'SELECT id, text, donmai, timestamp, icon FROM posts ORDER BY timestamp DESC LIMIT $1 OFFSET $2',
+      [limit, offset]
     );
     res.json(result.rows);
   } catch (error) {
