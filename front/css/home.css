@@ -451,9 +451,11 @@ body {
 }
 
 /* ホバー時のスタイル */
-.header-reload-button:hover {
-    background-color: var(--fab-color);
-    color: #fff;
+@media (hover: hover) {
+    .header-reload-button:hover {
+        background-color: var(--fab-color);
+        color: #fff;
+    }
 }
 
 #help-modal .modal-content {
